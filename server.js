@@ -262,7 +262,13 @@ const server = http.createServer(async function(req, res) {
     return;
   }
 
-  // ── 以下端点需要认证 ────────────────────────────
+  // ── 静态文件无需认证（HTML/JS/CSS/图片等） ───────
+  if (!url.startsWith('/api/')) {
+    serveStatic(req, res, url);
+    return;
+  }
+
+  // ── 以下 API 端点需要认证 ────────────────────────────
   const authInfo = requireAuth(req, res);
   if (!authInfo) return;
 
