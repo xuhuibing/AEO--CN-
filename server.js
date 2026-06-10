@@ -25,9 +25,19 @@ const API_KEY = process.argv[5] || process.env.API_KEY || '';
 const FEISHU_APP_ID = process.argv[6] || process.env.FEISHU_APP_ID || '';
 const FEISHU_APP_SECRET = process.argv[7] || process.env.FEISHU_APP_SECRET || '';
 const NODE_ENV = process.env.NODE_ENV || 'production';
+const CORS_ORIGINS = process.env.CORS_ORIGINS || 'http://localhost:3080';
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
 const UPLOAD_DIR = path.join(ROOT, 'uploads');
+// 允许上传的文件类型
+const ALLOWED_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.xlsx', '.xls', '.docx', '.doc', '.zip', '.txt', '.csv'];
+const ALLOWED_MIME_TYPES = [
+  'application/pdf', 'image/jpeg', 'image/png', 'image/gif',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/zip', 'text/plain', 'text/csv',
+  'application/vnd.ms-excel', 'application/msword'
+];
 // ───────────────────────────────────────────────────
 
 // 飞书集成模块
@@ -95,6 +105,34 @@ function parseUrlEncoded(body) {
   } catch(e) { return {}; }
 }
 
+// ── Rate Limiter ──────────────────────────────────────
+const rateLimitMap = new Map();
+function rateLimit(ip, maxAttempts, windowMs) {
+  maxAttempts = maxAttempts || 10;
+  windowMs = windowMs || 60000;
+  const now = Date.now();
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return { allowed: true, remaining: maxAttempts - 1 };
+  }
+  const entry = rateLimitMap.get(ip);
+  if (now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return { allowed: true, remaining: maxAttempts - 1 };
+  }
+  entry.count++;
+  if (entry.count > maxAttempts) {
+    return { allowed: false, remaining: 0, retryAfter: Math.ceil((entry.resetAt - now) / 1000) };
+  }
+  return { allowed: true, remaining: maxAttempts - entry.count };
+}
+setInterval(function() {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap.entries()) {
+    if (now > entry.resetAt) rateLimitMap.delete(ip);
+  }
+}, 300000);
+
 // ── 认证中间件 ──────────────────────────────────────
 // 支持三种认证方式：Basic Auth、API Key、Session Token
 function checkAuth(req) {
@@ -116,10 +154,8 @@ function checkAuth(req) {
     } catch(e) { /* fall through */ }
   }
 
-  // 3. API Key 认证
+  // 3. API Key 认证（仅 Header，URL 参数方式已移除）
   if (API_KEY && req.headers['x-api-key'] === API_KEY) return { method: 'apikey', user: { id: 1, username: 'API', displayName: 'API 客户端', role: 'customs_officer' } };
-  const urlKey = new URL(req.url, 'http://localhost').searchParams.get('api_key');
-  if (API_KEY && urlKey === API_KEY) return { method: 'apikey', user: { id: 1, username: 'API', displayName: 'API 客户端', role: 'customs_officer' } };
 
   return null;
 }
@@ -140,8 +176,7 @@ function requireAuth(req, res) {
 
 function checkPerm(authInfo, permission) {
   if (!authInfo) return false;
-  // Basic Auth 和 API Key 拥有所有权限
-  if (authInfo.method === 'basic' || authInfo.method === 'apikey') return true;
+  // Basic Auth 和 API Key 同样受 RBAC 权限控制
   return auth.checkPermission(authInfo.user, permission);
 }
 
@@ -226,14 +261,34 @@ const server = http.createServer(async function(req, res) {
   const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
 
   // ── CORS ──
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigins = CORS_ORIGINS.split(',').map(function(o) { return o.trim(); });
+  const reqOrigin = req.headers['origin'] || '';
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(reqOrigin) || !reqOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', reqOrigin || '*');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0]);
+  }
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Key');
+  // ── Security headers (applied to ALL responses) ──
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' http://localhost:*; frame-ancestors 'none'");
   if (method === 'OPTIONS') { res.writeHead(204); return res.end(); }
 
   // ── 公开端点（无需认证） ──────────────────────────
-  // POST /api/auth/login — 用户登录
+  // POST /api/auth/login — 用户登录（含速率限制）
   if (method === 'POST' && url === '/api/auth/login') {
+    const rl = rateLimit(clientIP, 10, 60000);
+    if (!rl.allowed) {
+      res.writeHead(429, { 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) });
+      return res.end(JSON.stringify({ error: '登录尝试过于频繁，请 ' + rl.retryAfter + ' 秒后再试' }));
+    }
     try {
       const body = await parseBody(req);
       if (!body.username || !body.password) return sendError(res, 400, '用户名和密码为必填');
@@ -242,7 +297,7 @@ const server = http.createServer(async function(req, res) {
       const session = auth.createSession(user.id, clientIP, req.headers['user-agent'] || '');
       auth.addAuditLog(user.id, user.username, '登录系统', 'auth', '登录成功', clientIP);
       sendJSON(res, { ok: true, user: user, token: session.token, expiresAt: session.expiresAt });
-    } catch(e) { sendError(res, 500, '登录失败: ' + e.message); }
+    } catch(e) { console.error('登录异常:', e.message); console.error(e.stack); sendError(res, 500, '登录失败，请稍后重试'); }
     return;
   }
 
@@ -258,7 +313,7 @@ const server = http.createServer(async function(req, res) {
       const user = auth.createUser(body.username, body.password, body.displayName || body.username, role, body);
       const session = auth.createSession(user.id, clientIP, req.headers['user-agent'] || '');
       sendJSON(res, { ok: true, user: user, token: session.token, expiresAt: session.expiresAt }, 201);
-    } catch(e) { sendError(res, 400, '注册失败: ' + e.message); }
+    } catch(e) { console.error('注册异常:', e.message); sendError(res, 400, '注册失败，请检查输入'); }
     return;
   }
 
@@ -374,6 +429,14 @@ const server = http.createServer(async function(req, res) {
         if (!filePart) return sendError(res, 400, '未找到文件');
         // 限制文件大小 50MB
         if (filePart.data.length > 50 * 1024 * 1024) return sendError(res, 413, '文件超过50MB限制');
+        // 文件类型校验
+        var fileExt = path.extname(filePart.fileName).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(fileExt)) {
+          return sendError(res, 400, '不支持的文件类型: ' + fileExt);
+        }
+        if (filePart.contentType && !ALLOWED_MIME_TYPES.includes(filePart.contentType)) {
+          console.warn('可疑MIME类型:', filePart.fileName, filePart.contentType);
+        }
         var ext = path.extname(filePart.fileName) || '';
         var storedName = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + ext;
         var filePath = path.join(UPLOAD_DIR, storedName);
@@ -392,6 +455,11 @@ const server = http.createServer(async function(req, res) {
           var base64Data = body.fileData.replace(/^data:.*?;base64,/, '');
           var fileBuffer = Buffer.from(base64Data, 'base64');
           if (fileBuffer.length > 50 * 1024 * 1024) return sendError(res, 413, '文件超过50MB限制');
+          // 文件类型校验（Base64上传）
+          var base64Ext = path.extname(body.fileName).toLowerCase();
+          if (!ALLOWED_EXTENSIONS.includes(base64Ext)) {
+            return sendError(res, 400, '不支持的文件类型: ' + base64Ext);
+          }
           var ext2 = path.extname(body.fileName) || '';
           var storedName2 = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + ext2;
           var filePath2 = path.join(UPLOAD_DIR, storedName2);
@@ -1063,7 +1131,7 @@ const server = http.createServer(async function(req, res) {
   } catch (e) {
     console.error('请求处理异常:', e.message);
     console.error(e.stack);
-    sendError(res, 500, '服务器内部错误: ' + e.message);
+    sendError(res, 500, '服务器内部错误');
   }
 });
 

@@ -762,13 +762,13 @@
         </div>
         <div style="margin-bottom:24px;">
             <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--clr-text-secondary);margin-bottom:6px;">密码</label>
-            <input type="password" id="loginPassword" placeholder="请输入密码" value="admin123" style="width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:12px 16px;font-size:0.9rem;transition:border-color 0.2s,box-shadow 0.2s;" onfocus="this.style.borderColor='#1e3a5f';this.style.boxShadow='0 0 0 3px rgba(30,58,95,0.1)'" onblur="this.style.borderColor='#cbd5e1';this.style.boxShadow='none'">
+            <input type="password" id="loginPassword" placeholder="请输入密码" style="width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:12px 16px;font-size:0.9rem;transition:border-color 0.2s,box-shadow 0.2s;" onfocus="this.style.borderColor='#1e3a5f';this.style.boxShadow='0 0 0 3px rgba(30,58,95,0.1)'" onblur="this.style.borderColor='#cbd5e1';this.style.boxShadow='none'">
         </div>
         <button id="loginBtn" onclick="doLogin()" style="width:100%;padding:15px;background:linear-gradient(135deg,var(--clr-primary),var(--clr-accent));color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.2s ease;letter-spacing:1px;" onmouseover="this.style.opacity='0.9';this.style.transform='translateY(-1px)'" onmouseout="this.style.opacity='1';this.style.transform='none'">
             <i class="fas fa-sign-in-alt mr-2"></i>进入系统
         </button>
         <p style="text-align:center;margin-top:16px;font-size:0.7rem;color:var(--clr-text-muted);">
-            <i class="fas fa-info-circle mr-1"></i>管理员: admin / admin123
+            <i class="fas fa-info-circle mr-1"></i>请使用管理员账户登录
         </p>
         <p id="jsStatus" style="text-align:center;margin-top:6px;font-size:0.65rem;color:var(--clr-text-muted);">⏳ 加载中...</p>
     </div>
@@ -811,6 +811,7 @@
             <span class="notif-badge" id="notifBadge">0</span>
         </div>
         <span class="role-badge bg-blue-100 text-blue-800 border border-blue-200 hidden lg:inline-flex" id="headerRoleBadge">关务经理</span>
+        <span id="syncIndicator" class="hidden" style="font-size:11px;padding:2px 8px;border-radius:4px;margin-left:8px;white-space:nowrap;"></span>
         <div class="flex items-center space-x-2 text-sm border-l border-white/20 pl-3 lg:pl-4">
             <i class="fas fa-user-circle text-slate-300 text-lg"></i>
             <span class="text-slate-200 text-xs lg:text-sm" id="headerUserName">用户</span>
@@ -1873,9 +1874,17 @@
         <div class="card-business rounded-lg p-4 border-t-4 border-amber-400"><p class="text-xs text-slate-500 uppercase">已超期</p><p class="text-2xl font-bold text-amber-600 mt-1" id="taskOverdueCount">0</p></div>
         <div class="card-business rounded-lg p-4 border-t-4 border-emerald-500"><p class="text-xs text-slate-500 uppercase">已完成</p><p class="text-2xl font-bold text-emerald-600 mt-1" id="taskDoneCount">0</p></div>
     </div>
-    <div class="card-business rounded-lg p-4 lg:p-6 mb-6">
+    <div class="flex items-center space-x-2 mb-4">
+        <button onclick="switchTaskView('kanban')" id="taskViewBtnKanban" class="view-toggle-btn px-3 py-1.5 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm"><i class="fas fa-columns mr-1"></i>看板</button>
+        <button onclick="switchTaskView('project')" id="taskViewBtnProject" class="view-toggle-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-500"><i class="fas fa-chart-pie mr-1"></i>项目视图</button>
+    </div>
+    <div id="taskKanbanWrap" class="card-business rounded-lg p-4 lg:p-6 mb-6">
         <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i class="fas fa-columns text-slate-500 mr-2"></i>部门任务看板</h3>
         <div id="taskKanban" class="space-y-4"></div>
+    </div>
+    <div id="taskProjectWrap" class="card-business rounded-lg p-4 lg:p-6 mb-6 hidden">
+        <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i class="fas fa-chart-pie text-slate-500 mr-2"></i>项目视图 — 按标准维度查看达标与任务状态</h3>
+        <div id="taskProjectView" class="space-y-4"></div>
     </div>
     <div class="card-business rounded-lg overflow-hidden">
         <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between flex-wrap gap-2">
@@ -1905,7 +1914,9 @@
         <div><label class="block text-sm font-medium text-slate-700 mb-1">任务名称 <span class="text-red-500">*</span></label><input type="text" id="taskNameInput" placeholder="例如：第一季度场所安全检查" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-slate-500" required></div>
         <div class="grid grid-cols-2 gap-4">
             <div><label class="block text-sm font-medium text-slate-700 mb-1">关联标准</label><select id="taskStandardInput" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-slate-500 bg-white"><option value="">无特定关联</option></select></div>
-            <div><label class="block text-sm font-medium text-slate-700 mb-1">执行部门 <span class="text-red-500">*</span></label><select id="taskDeptInput" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-slate-500 bg-white"></select></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1">执行部门 <span class="text-red-500">*</span></label><select id="taskDeptInput" onchange="onTaskDeptChange()" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-slate-500 bg-white"></select>
+                <div id="taskDeptOtherWrap" class="hidden mt-1"><input type="text" id="taskDeptOther" placeholder="请输入其他部门名称" class="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-slate-500"></div>
+            </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
             <div><label class="block text-sm font-medium text-slate-700 mb-1">负责人 <span class="text-red-500">*</span></label><input type="text" id="taskOwnerInput" placeholder="负责人姓名" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-slate-500" required></div>
@@ -2996,45 +3007,45 @@
     </div>
 </div>
 
-<!-- 标准配置弹窗（责任人/协助人/日期） -->
-<div class="modal-overlay" id="standardConfigModal">
-    <div class="modal-content" style="max-width:520px">
-        <div class="modal-header">
-            <h3 class="text-lg font-bold text-slate-800"><i class="fas fa-cog mr-2 text-slate-500"></i>标准配置 - <span id="stdConfigTitle" class="text-sm font-mono text-slate-500"></span></h3>
-            <button onclick="closeModal('standardConfigModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
-        </div>
-        <div class="p-5 space-y-3">
-            <div class="flex items-center">
-                <label class="w-24 text-sm font-medium text-slate-700 flex-shrink-0">部门</label>
-                <select id="stdConfigDept" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-slate-500"></select>
-            </div>
-            <div class="flex items-center">
-                <label class="w-24 text-sm font-medium text-slate-700 flex-shrink-0">责任人</label>
-                <input type="text" id="stdConfigOwner" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="负责人姓名">
-            </div>
-            <div class="flex items-center">
-                <label class="w-24 text-sm font-medium text-slate-700 flex-shrink-0">协助人</label>
-                <input type="text" id="stdConfigAssistant" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="协助人姓名（可选）">
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">发起日期</label>
-                    <input type="date" id="stdConfigStartDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">完成日期</label>
-                    <input type="date" id="stdConfigDueDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500">
-                </div>
-            </div>
-            <input type="hidden" id="stdConfigItemKey">
-        </div>
-        <div class="modal-footer">
-            <button onclick="closeModal('standardConfigModal')" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button>
-            <button onclick="stdConfigGenerateTask()" class="px-4 py-2 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-700"><i class="fas fa-tasks mr-1"></i>保存并生成任务</button>
-            <button onclick="saveStandardConfig()" class="btn-primary px-6 py-2 rounded-lg text-sm"><i class="fas fa-check mr-1"></i>保存配置</button>
-        </div>
-    </div>
-</div>
+	<!-- 子分类任务配置弹窗 -->
+	<div class="modal-overlay" id="scConfigModal">
+	    <div class="modal-content" style="max-width:520px">
+	        <div class="modal-header">
+	            <h3 class="text-lg font-bold text-slate-800"><i class="fas fa-cog mr-2 text-slate-500"></i>指派任务 - <span id="scConfigTitle" class="text-sm text-slate-600"></span></h3>
+	            <button onclick="closeModal('scConfigModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
+	        </div>
+	        <div class="p-5 space-y-3">
+	            <div class="flex items-center">
+	                <label class="w-24 text-sm font-medium text-slate-700 flex-shrink-0">责任部门</label>
+	                <select id="scConfigDept" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-slate-500"></select>
+	            </div>
+	            <div class="flex items-center">
+	                <label class="w-24 text-sm font-medium text-slate-700 flex-shrink-0">责任人</label>
+	                <input type="text" id="scConfigOwner" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="负责人姓名">
+	            </div>
+	            <div class="flex items-center">
+	                <label class="w-24 text-sm font-medium text-slate-700 flex-shrink-0">协助人</label>
+	                <input type="text" id="scConfigAssistant" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="协助人姓名（可选）">
+	            </div>
+	            <div class="grid grid-cols-2 gap-3">
+	                <div>
+	                    <label class="block text-sm font-medium text-slate-700 mb-1">发起日期</label>
+	                    <input type="date" id="scConfigStartDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500">
+	                </div>
+	                <div>
+	                    <label class="block text-sm font-medium text-slate-700 mb-1">完成日期</label>
+	                    <input type="date" id="scConfigDueDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500">
+	                </div>
+	            </div>
+	            <input type="hidden" id="scConfigKey">
+	        </div>
+	        <div class="modal-footer">
+	            <button onclick="closeModal('scConfigModal')" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button>
+	            <button onclick="scConfigGenerateTask()" class="px-4 py-2 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-700"><i class="fas fa-tasks mr-1"></i>保存并生成任务</button>
+	            <button onclick="saveScConfig()" class="btn-primary px-6 py-2 rounded-lg text-sm"><i class="fas fa-check mr-1"></i>保存配置</button>
+	        </div>
+	    </div>
+	</div>
 
 </div><!-- /appContainer -->
 
