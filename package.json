@@ -1,0 +1,35 @@
+{
+  "name": "aeo-system",
+  "version": "2.0.0",
+  "description": "关务AEO认证稽核系统 (Trade Compliance Management System)",
+  "main": "server.js",
+  "directories": {
+    "lib": "lib",
+    "data": "data",
+    "uploads": "uploads",
+    "docs": "docs"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js 3000",
+    "test": "node --check server.js && node --check lib/app.js && node --check lib/db.js && node --check lib/auth.js && node --check lib/migrate.js && node lib/test-api.js",
+    "test:api": "node lib/test-api.js",
+    "migrate": "node lib/migrate.js",
+    "backup": "node -e \"require('./lib/db').initDatabase(); require('./lib/db').backupData(); console.log('Backup done'); process.exit(0);\""
+  },
+  "keywords": [
+    "aeo",
+    "customs",
+    "compliance",
+    "trade"
+  ],
+  "author": "AEO System Team",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.10.0",
+    "dotenv": "^16.4.7",
+    "uuid": "^14.0.0"
+  }
+}

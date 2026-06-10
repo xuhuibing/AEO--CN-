@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEO认证稽核系统 — 总结与建议报告</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: #f1f5f9; color: #334155; line-height: 1.8; padding: 40px 20px; }
+.container { max-width: 960px; margin: 0 auto; }
+.cover { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); color: white; border-radius: 16px; padding: 48px; margin-bottom: 32px; }
+.cover h1 { font-size: 28px; margin-bottom: 8px; }
+.cover .sub { color: #94a3b8; font-size: 14px; margin-bottom: 4px; }
+.cover .meta { color: #64748b; font-size: 12px; margin-top: 16px; }
+.card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+h2 { font-size: 20px; color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 8px; margin-bottom: 20px; }
+h3 { font-size: 16px; color: #334155; margin-top: 24px; margin-bottom: 12px; }
+h4 { font-size: 14px; color: #475569; margin-top: 16px; margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+th { background: #f1f5f9; color: #475569; font-weight: 600; text-align: left; padding: 10px 12px; border: 1px solid #e2e8f0; }
+td { padding: 10px 12px; border: 1px solid #e2e8f0; vertical-align: top; }
+tr:hover { background: #f8fafc; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.p0 { background: #fee2e2; color: #991b1b; }
+.p1 { background: #fef3c7; color: #92400e; }
+.p2 { background: #dbeafe; color: #1e40af; }
+.p3 { background: #e2e8f0; color: #475569; }
+.tag { display: inline-block; background: #f1f5f9; color: #475569; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin: 1px; }
+.tag-green { background: #d1fae5; color: #065f46; }
+.tag-amber { background: #fef3c7; color: #92400e; }
+.tag-blue { background: #dbeafe; color: #1e40af; }
+.tag-red { background: #fee2e2; color: #991b1b; }
+ul, ol { padding-left: 20px; }
+li { margin-bottom: 6px; }
+.arch-diagram { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; font-family: monospace; font-size: 13px; line-height: 1.6; margin: 16px 0; white-space: pre; overflow-x: auto; }
+.roadmap-phase { border-left: 3px solid #1e3a5f; padding: 16px 20px; margin: 16px 0; background: #f8fafc; border-radius: 0 8px 8px 0; }
+.roadmap-phase h4 { margin-top: 0; color: #1e3a5f; }
+.insight-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin: 12px 0; }
+.insight-box.warn { background: #fffbeb; border-color: #fde68a; }
+.insight-box.err { background: #fef2f2; border-color: #fecaca; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+.summary-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: center; }
+.summary-item .num { font-size: 24px; font-weight: 700; color: #1e3a5f; }
+.summary-item .label { font-size: 12px; color: #64748b; margin-top: 4px; }
+@media print { body { padding: 0; } .cover { break-after: page; } }
+@media (max-width: 768px) { .cover { padding: 24px; } .card { padding: 20px; } table { font-size: 12px; } th, td { padding: 6px 8px; } }
+code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="cover">
+    <h1>关务AEO认证稽核系统 v2.0</h1>
+    <p class="sub">系统总结 · 自评与改进建议</p>
+    <p class="meta">分析范围：完整源码 | 生成日期：2026-06-03 | 版本：v2.0</p>
+</div>
+
+<!-- 概览 -->
+<div class="card">
+    <h2>一、系统概览</h2>
+    <div class="summary-grid">
+        <div class="summary-item"><div class="num">11</div><div class="label">核心功能模块</div></div>
+        <div class="summary-item"><div class="num">1190</div><div class="label">HTML 行数</div></div>
+        <div class="summary-item"><div class="num">2866</div><div class="label">JS 行数</div></div>
+        <div class="summary-item"><div class="num">550</div><div class="label">后端 Server 行数</div></div>
+        <div class="summary-item"><div class="num">25</div><div class="label">AEO 认证标准项</div></div>
+        <div class="summary-item"><div class="num">5</div><div class="label">用户角色</div></div>
+    </div>
+    <p><strong>技术栈</strong>：纯前端 SPA（Vanilla JS + Tailwind CSS + Chart.js）+ Node.js 后端（HTTP Server + JSON 文件持久化）</p>
+
+    <h3>系统架构</h3>
+    <div class="arch-diagram">┌─────────────────────────────────────────────────────────┐
+│                    Browser (SPA)                         │
+│  index.html + lib/app.js + lib/tailwind/output.css       │
+│  localStorage（即时读写）  ←→  fetch API（异步同步）        │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+┌──────────────────────────▼──────────────────────────────┐
+│              Node.js HTTP Server (server.js)            │
+│  - 静态文件服务：HTML/CSS/JS/字体                         │
+│  - REST API：GET/PUT /api/data/:key                     │
+│  - 专有 API：/api/company, /api/tasks, /api/finance ...  │
+│  - 飞书 Webhook：/api/webhook/feishu                     │
+│  - Basic Auth + API Key 双重认证                         │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+┌──────────────────────────▼──────────────────────────────┐
+│                   JSON 文件持久化层                        │
+│  data/*.json  （按 key 自动映射文件名）                    │
+│  data/backups/（自动备份，保留最近30份）                   │
+│  // 原子写入：write to .tmp → rename                      │
+└─────────────────────────────────────────────────────────┘</div>
+</div>
+
+<!-- 模块清单 -->
+<div class="card">
+    <h2>二、功能模块清单</h2>
+    <table>
+        <thead><tr><th style="width:30px">#</th><th>模块</th><th style="width:400px">核心功能</th><th>数据键</th></tr></thead>
+        <tbody>
+            <tr><td>1</td><td><strong>系统首页</strong></td><td>综合合规得分（权重可调）、四大维度评分、部门快照、近期动态、快捷操作</td><td><code>assessmentAnswers</code>, <code>tasks</code></td></tr>
+            <tr><td>2</td><td><strong>企业介绍与BI</strong></td><td>企业基本信息、关键联系人、近3年进出口BI图表（Chart.js）</td><td><code>companyInfo</code>, <code>tradeData</code></td></tr>
+            <tr><td>3</td><td><strong>法规管理</strong></td><td>自定义法规增删改查及文件上传</td><td><code>customLaws</code></td></tr>
+            <tr><td>4</td><td><strong>认证标准管理</strong></td><td>30条认证标准，按维度/部门查看，高级/认证一键切换</td><td><code>standardsData</code>（静态）</td></tr>
+            <tr><td>5</td><td><strong>合规自评问卷</strong></td><td>逐题自评、进度跟踪、历史记录、预估得分、提交归档</td><td><code>assessmentAnswers</code>, <code>assessmentHistory</code></td></tr>
+            <tr><td>6</td><td><strong>认证自查</strong></td><td>25项标准逐项对照、检查要点四态循环、证据上传、年度隔离、报告导出</td><td><code>standardChecks[year]</code></td></tr>
+            <tr><td>7</td><td><strong>供应商信用管理</strong></td><td>供应商名录、海关信用查询记录追查、等级变化监测</td><td><code>suppliers</code></td></tr>
+            <tr><td>8</td><td><strong>财务指标管理</strong></td><td>年度9项指标录入、自动合规判定、审计报告上传</td><td><code>financeData[year]</code></td></tr>
+            <tr><td>9</td><td><strong>任务管理</strong></td><td>全生命周期（下发→执行→审核→归档）、看板、批量操作、日历时间线</td><td><code>tasks</code></td></tr>
+            <tr><td>10</td><td><strong>内部审计</strong></td><td>审计活动管理、问题改善跟踪（跨年度）、审计报告上传</td><td><code>internalAudits</code></td></tr>
+            <tr><td>11</td><td><strong>制度文件</strong></td><td>按维度/年份分类归档、文件上传浏览</td><td>文件DB</td></tr>
+            <tr><td>12</td><td><strong>培训中心</strong></td><td>培训资料上传、培训记录查看</td><td>文件DB</td></tr>
+            <tr><td>13</td><td><strong>海关演示模式</strong></td><td>全屏演示、证据连续性日历、维度全景、只读导出</td><td>静态 + 随机模拟</td></tr>
+        </tbody>
+    </table>
+    <p style="margin-top:8px;font-size:12px;color:#64748b;">辅助系统：角色登录(5角色) · 审计日志 · 全局搜索 · 通知 · 备份 · JSON/CSV导入导出 · 飞书集成</p>
+</div>
+
+<!-- 自评不足 -->
+<div class="card">
+    <h2>三、自评不足之处</h2>
+
+    <h3>3.1 技术层面</h3>
+    <ol>
+        <li><strong>无真实用户认证</strong> — 模拟登录，角色仅UI标签切换，无真实鉴权</li>
+        <li><strong>无数据库支持</strong> — JSON 文件存储，不支撑多人并发写入</li>
+        <li><strong>无自动化测试</strong> — 全部功能零测试覆盖</li>
+        <li><strong>全局作用域污染</strong> — 所有函数/变量定义在 <code>window</code> 下</li>
+        <li><strong>无状态管理</strong> — 数据状态分散在全局变量和 localStorage 中</li>
+        <li><strong>文件上传局限</strong> — base64存储，不支持分片/大文件</li>
+        <li><strong>无构建流程</strong> — 无编译/打包/压缩</li>
+        <li><strong>后端能力薄弱</strong> — 仅 CRUD + 静态服务，无连接池/中间件</li>
+        <li><strong>无 HTTPS</strong> — 对内可用不可对外发布</li>
+        <li><strong>飞书集成未验证</strong> — feishu.js 在生产环境中无实际对接测试</li>
+    </ol>
+
+    <h3>3.2 功能层面</h3>
+    <ol>
+        <li><strong>无数据校验</strong> — 前端/后端均缺少输入校验</li>
+        <li><strong>无版本管理</strong> — 数据修改无变更历史，无法回滚</li>
+        <li><strong>导出能力有限</strong> — 仅有 HTML window.print()，缺 Excel/PDF 模板导出</li>
+        <li><strong>缺乏批量操作</strong> — 批量导入/批量录入</li>
+        <li><strong>附件在线预览缺失</strong> — 审计报告等只能下载查看</li>
+        <li><strong>无多语言支持</strong> — 仅中文界面</li>
+        <li><strong>移动端体验欠佳</strong> — 平板/手机响应式适配有限</li>
+    </ol>
+</div>
+
+<!-- 建议 - 企业多用户+海关监管 -->
+<div class="card">
+    <h2>四、建议 — 内部多用户使用 + 海关认证监管角度</h2>
+    <table>
+        <thead><tr><th style="width:40px">#</th><th>建议内容</th><th style="width:240px">详细说明</th><th style="width:60px">优先级</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>1</td><td><strong>替换为真实用户认证系统</strong></td>
+                <td>采用 OAuth2.0 / 企业微信 / LDAP 登录，支持密码策略、MFA</td>
+                <td><span class="badge p0">P0</span></td>
+            </tr>
+            <tr>
+                <td>2</td><td><strong>实现 RBAC 权限控制</strong></td>
+                <td>关务经理=全部读写；部门对接人=本部门标准；内审员=只读；海关=仅查看</td>
+                <td><span class="badge p0">P0</span></td>
+            </tr>
+            <tr>
+                <td>3</td><td><strong>引入操作审批流</strong></td>
+                <td>关键操作（财务修改、审计结论变更）需上级审批后生效</td>
+                <td><span class="badge p1">P1</span></td>
+            </tr>
+            <tr>
+                <td>4</td><td><strong>操作留痕 + 数字签名</strong></td>
+                <td>所有修改记录操作人/IP/时间，关键数据增加电子签章</td>
+                <td><span class="badge p1">P1</span></td>
+            </tr>
+            <tr>
+                <td>5</td><td><strong>数据隔离与审计溯源</strong></td>
+                <td>数据修改独立版本记录，支持回溯历史状态</td>
+                <td><span class="badge p1">P1</span></td>
+            </tr>
+            <tr>
+                <td>6</td><td><strong>整改跟踪超时预警</strong></td>
+                <td>审计发现问题自动计算整改倒计时，超期升级通知</td>
+                <td><span class="badge p1">P1</span></td>
+            </tr>
+            <tr>
+                <td>7</td><td><strong>年度资料归档功能</strong></td>
+                <td>审计结束后打包归档年度全模块数据，产出结构化的海关备查档案</td>
+                <td><span class="badge p2">P2</span></td>
+            </tr>
+            <tr>
+                <td>8</td><td><strong>对接海关"单一窗口"</strong></td>
+                <td>通过 API 对接海关信用公示数据，自动更新企业信用状态</td>
+                <td><span class="badge p2">P2</span></td>
+            </tr>
+            <tr>
+                <td>9</td><td><strong>合规日历与自动提醒</strong></td>
+                <td>内置 AEO 持续合规时间线（年审/内审/培训/自查），自动推送到期提醒</td>
+                <td><span class="badge p2">P2</span></td>
+            </tr>
+            <tr>
+                <td>10</td><td><strong>内审与认证标准联动</strong></td>
+                <td>审计问题自动关联对应认证标准，更新标准合规状态</td>
+                <td><span class="badge p3">P3</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 建议 - 系统设计 -->
+<div class="card">
+    <h2>五、建议 — 系统设计与完整性角度</h2>
+    <table>
+        <thead><tr><th style="width:40px">#</th><th>建议内容</th><th style="width:240px">详细说明</th><th style="width:60px">优先级</th></tr></thead>
+        <tbody>
+            <tr><td>1</td><td><strong>后端升级为关系型数据库</strong></td><td>替换 JSON 为 SQLite/PostgreSQL，支持 ACID、并发、复杂查询</td><td><span class="badge p0">P0</span></td></tr>
+            <tr><td>2</td><td><strong>引入前端框架</strong></td><td>Vue/React 组件化 + 状态管理 + 路由</td><td><span class="badge p1">P1</span></td></tr>
+            <tr><td>3</td><td><strong>前后端分离 + 规范化 API</strong></td><td>统一版本号/分页/错误码/请求ID，便于多端复用</td><td><span class="badge p1">P1</span></td></tr>
+            <tr><td>4</td><td><strong>增加自动化测试</strong></td><td>jest 单元测试 + supertest API 测试 + Playwright e2e</td><td><span class="badge p1">P1</span></td></tr>
+            <tr><td>5</td><td><strong>文件存储独立化</strong></td><td>使用 MinIO/OSS 独立文件服务，支持分片上传、断点续传</td><td><span class="badge p1">P1</span></td></tr>
+            <tr><td>6</td><td><strong>数据备份策略完善</strong></td><td>增量+全量备份轮换，支持 NAS/云存储跨机存储</td><td><span class="badge p1">P1</span></td></tr>
+            <tr><td>7</td><td><strong>API 文档自动生成</strong></td><td>OpenAPI/Swagger 规范，便于飞书等系统对接</td><td><span class="badge p2">P2</span></td></tr>
+            <tr><td>8</td><td><strong>CI/CD 流水线</strong></td><td>GitHub Actions 自动测试→构建→部署</td><td><span class="badge p2">P2</span></td></tr>
+            <tr><td>9</td><td><strong>系统监控与告警</strong></td><td>增强 /api/health 健康检查，磁盘空间告警</td><td><span class="badge p2">P2</span></td></tr>
+            <tr><td>10</td><td><strong>性能优化</strong></td><td>分页加载、虚拟滚动、图片懒加载、缓存策略</td><td><span class="badge p2">P2</span></td></tr>
+            <tr><td>11</td><td><strong>数据加密</strong></td><td>敏感字段静态加密，传输启用 HTTPS</td><td><span class="badge p2">P2</span></td></tr>
+            <tr><td>12</td><td><strong>移动端适配</strong></td><td>移动端优先设计，支持微信/钉钉/飞书内嵌</td><td><span class="badge p3">P3</span></td></tr>
+            <tr><td>13</td><td><strong>系统日志与分析</strong></td><td>用户行为分析面板，模块使用率统计</td><td><span class="badge p3">P3</span></td></tr>
+            <tr><td>14</td><td><strong>插件化扩展架构</strong></td><td>设计插件机制，便于扩展 RPA/AI/EDI 等能力</td><td><span class="badge p3">P3</span></td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 改进路线图 -->
+<div class="card">
+    <h2>六、推荐改进路线图</h2>
+
+    <div class="roadmap-phase">
+        <h4>第一阶段（1个月内）— 安全与合规基础</h4>
+        <p style="font-size:13px;color:#64748b;margin-bottom:8px;">目标：搭建真实的生产级基础设施</p>
+        <ul style="font-size:13px;">
+            <li>✅ 真实用户认证（OAuth2.0 / 企业微信登录）</li>
+            <li>✅ 基于角色的权限控制（RBAC）</li>
+            <li>✅ SQLite 替换 JSON 文件存储</li>
+            <li>✅ 文件存储独立化（本地目录 → 独立文件服务）</li>
+        </ul>
+    </div>
+
+    <div class="roadmap-phase" style="border-left-color:#b45309;">
+        <h4>第二阶段（2-3个月）— 功能完善</h4>
+        <p style="font-size:13px;color:#64748b;margin-bottom:8px;">目标：关键缺失功能补齐</p>
+        <ul style="font-size:13px;">
+            <li>✅ 操作审批流与数字签名</li>
+            <li>✅ 整改跟踪超时自动预警</li>
+            <li>✅ 年度资料自动归档功能</li>
+            <li>✅ API 规范化 + OpenAPI 文档</li>
+            <li>✅ 数据版本管理与回溯</li>
+        </ul>
+    </div>
+
+    <div class="roadmap-phase" style="border-left-color:#059669;">
+        <h4>第三阶段（3-6个月）— 体系化与扩展</h4>
+        <p style="font-size:13px;color:#64748b;margin-bottom:8px;">目标：企业级系统工程化</p>
+        <ul style="font-size:13px;">
+            <li>✅ 前端框架迁移（Vue 3 / React）</li>
+            <li>✅ 自动化测试体系覆盖</li>
+            <li>✅ 海关单一窗口数据对接</li>
+            <li>✅ CI/CD 流水线搭建</li>
+            <li>✅ 移动端适配上线</li>
+        </ul>
+    </div>
+
+    <div class="insight-box" style="margin-top:20px;">
+        <strong>核心判断：</strong>当前系统作为 <strong>原型验证(PoC)</strong> 或 <strong>内部演示工具</strong> 功能基本完整，但距离真正的 <strong>企业级生产系统</strong> 还有关键差距——尤其是认证与权限、数据库、测试覆盖三个维度。建议优先解决认证与权限问题（P0），然后推进数据库升级和测试体系建设（P1）。
+    </div>
+</div>
+
+<div style="text-align:center;padding:24px;color:#94a3b8;font-size:12px;">
+    AEO认证稽核系统 · 系统总结与改进建议 · 2026-06-03
+</div>
+
+</div>
+</body>
+</html>

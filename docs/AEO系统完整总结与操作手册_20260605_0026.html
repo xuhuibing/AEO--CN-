@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEO认证稽核系统 v2.1 — 完整项目总结</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; background: #f8fafc; line-height: 1.7; }
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 28px; color: #0f172a; border-bottom: 3px solid #3b82f6; padding-bottom: 12px; margin-bottom: 8px; }
+  h2 { font-size: 22px; color: #0f172a; margin-top: 40px; margin-bottom: 16px; padding-left: 12px; border-left: 4px solid #3b82f6; }
+  h3 { font-size: 18px; color: #1e293b; margin-top: 28px; margin-bottom: 12px; }
+  h4 { font-size: 16px; color: #334155; margin-top: 20px; margin-bottom: 8px; }
+  p { margin-bottom: 12px; }
+  .meta { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+  .meta strong { color: #16a34a; }
+  a { color: #2563eb; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+  th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+  th { background: #f1f5f9; font-weight: 600; color: #475569; }
+  tr:hover { background: #f8fafc; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: 'Menlo', 'Monaco', monospace; font-size: 13px; color: #0f172a; }
+  pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; overflow-x: auto; font-family: 'Menlo', 'Monaco', monospace; font-size: 13px; margin: 16px 0; }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  blockquote { border-left: 4px solid #93c5fd; padding: 8px 16px; margin: 16px 0; background: #f0f7ff; border-radius: 0 8px 8px 0; }
+  blockquote p { margin: 0; }
+  ul, ol { margin: 8px 0 16px; padding-left: 24px; }
+  li { margin-bottom: 4px; }
+  .status-done { color: #16a34a; font-weight: bold; }
+  .header { background: linear-gradient(135deg, #1e3a5f, #2563eb); color: white; padding: 40px 24px; border-radius: 12px; margin-bottom: 32px; text-align: center; }
+  .header h1 { color: white; border: none; font-size: 32px; padding: 0; }
+  .header p { color: #bfdbfe; margin: 8px 0 0; }
+  .card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 16px 0; }
+  .stat { text-align: center; padding: 16px; background: #f8fafc; border-radius: 8px; }
+  .stat-num { font-size: 28px; font-weight: bold; color: #2563eb; }
+  .stat-label { font-size: 12px; color: #64748b; margin-top: 4px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+  .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .tag-green { background: #dcfce7; color: #16a34a; }
+  .tag-amber { background: #fef3c7; color: #d97706; }
+  hr { border: none; border-top: 1px solid #e2e8f0; margin: 32px 0; }
+  .checklist { list-style: none; padding: 0; }
+  .checklist li::before { content: "☐ "; color: #64748b; }
+  .checklist li.done::before { content: "☑ "; color: #16a34a; }
+  @media (max-width: 640px) {
+    .container { padding: 16px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+    table { font-size: 12px; }
+    th, td { padding: 6px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>AEO认证稽核系统 v2.1</h1>
+    <p>完整项目总结 · 操作手册 · 运维指南</p>
+    <p style="margin-top:12px;font-size:14px;opacity:0.8;">最后更新：2026-06-05 00:26 &nbsp;|&nbsp; <strong style="color:#4ade80;">✅ 完整可上线</strong></p>
+  </div>
+
+  <div class="card-grid">
+    <div class="stat"><div class="stat-num">11,622</div><div class="stat-label">总代码行数</div></div>
+    <div class="stat"><div class="stat-num">19</div><div class="stat-label">功能模块</div></div>
+    <div class="stat"><div class="stat-num">42</div><div class="stat-label">API 端点</div></div>
+    <div class="stat"><div class="stat-num">136</div><div class="stat-label">认证标准项</div></div>
+  </div>
+
+  <h2>一、系统访问</h2>
+
+  <h3>1.1 访问地址</h3>
+  <table>
+    <tr><th>方式</th><th>地址</th><th>说明</th></tr>
+    <tr><td>本机访问</td><td><code>http://localhost:3080</code></td><td>服务器本机浏览器</td></tr>
+    <tr><td>局域网访问</td><td><code>http://192.168.43.251:3080</code></td><td>同局域网设备访问</td></tr>
+  </table>
+
+  <h3>1.2 登录凭证</h3>
+  <table>
+    <tr><th>角色</th><th>用户名</th><th>密码</th><th>说明</th></tr>
+    <tr><td>管理员/关务经理</td><td><code>admin</code></td><td><code>admin123</code></td><td>全部权限，含系统管理</td></tr>
+    <tr><td>Basic Auth</td><td><code>aeo</code></td><td><code>aeo2026</code></td><td>API访问、向后兼容</td></tr>
+  </table>
+
+  <h3>1.3 内建角色</h3>
+  <table>
+    <tr><th>角色Key</th><th>名称</th><th>适用</th></tr>
+    <tr><td><code>customs_officer</code></td><td>关务经理</td><td>系统管理员，全部权限</td></tr>
+    <tr><td><code>dept_lead</code></td><td>部门AEO对接人</td><td>标准查看/编辑、任务管理</td></tr>
+    <tr><td><code>auditor</code></td><td>内审员</td><td>审计创建/编辑</td></tr>
+    <tr><td><code>executive</code></td><td>企业高管</td><td>查看权限</td></tr>
+    <tr><td><code>customs_viewer</code></td><td>海关查看者</td><td>仅查看演示</td></tr>
+  </table>
+
+  <h2>二、项目概览</h2>
+
+  <h3>2.1 项目定位</h3>
+  <p>AEO（Authorized Economic Operator，经认证的经营者）认证稽核系统，面向进出口企业的关务部门和管理层，帮助完成AEO高级认证/认证企业的全流程管理。</p>
+  <blockquote>核心流程：标准学习 → 合规自评 → 差距分析 → 整改跟踪 → 证据归档 → 海关演示</blockquote>
+
+  <h3>2.2 技术栈</h3>
+  <table>
+    <tr><th>层级</th><th>技术选型</th><th>文件</th><th>行数</th></tr>
+    <tr><td>后端</td><td>Node.js 原生 HTTP 模块</td><td><code>server.js</code></td><td>1,103</td></tr>
+    <tr><td>数据库</td><td>SQLite (better-sqlite3) WAL模式</td><td><code>lib/db.js</code></td><td>359</td></tr>
+    <tr><td>前端</td><td>原生 JS + Tailwind CSS</td><td><code>lib/app.js</code></td><td>5,207</td></tr>
+    <tr><td>页面</td><td>单页应用</td><td><code>index.html</code></td><td>1,662</td></tr>
+    <tr><td>认证</td><td>bcryptjs + uuid Session Token</td><td><code>lib/auth.js</code></td><td>193</td></tr>
+    <tr><td>标准数据</td><td>JS 数据结构编码</td><td><code>standards-data.js</code></td><td>2,635</td></tr>
+    <tr><td>飞书集成</td><td>原生 https</td><td><code>feishu.js</code></td><td>463</td></tr>
+  </table>
+
+  <h2>三、功能模块清单</h2>
+
+  <h3>核心模块</h3>
+  <table>
+    <tr><th>模块</th><th>功能</th><th>状态</th></tr>
+    <tr><td>认证标准</td><td>7维度74项(高级)/62项(认证)标准库；手风琴+目录锚点导航；三色证据状态标记；部门查看/维度查看双视图；搜索过滤</td><td class="status-done">✅</td></tr>
+    <tr><td>合规自评</td><td>按维度问卷；三级选项；即时评分；历史记录；多年度趋势图</td><td class="status-done">✅</td></tr>
+    <tr><td>整改跟踪</td><td>发起→跟进→验收闭环；双部门验收（关务+审计）；审批流转；超期预警</td><td class="status-done">✅</td></tr>
+    <tr><td>任务管理</td><td>CRUD；看板/列表双视图；状态流转；日历时间线；批量下发</td><td class="status-done">✅</td></tr>
+    <tr><td>系统设置</td><td>健康监控；备份恢复；版本回滚；数据导入导出；审计日志</td><td class="status-done">✅</td></tr>
+  </table>
+
+  <h3>辅助模块</h3>
+  <table>
+    <tr><th>模块</th><th>功能</th><th>状态</th></tr>
+    <tr><td>仪表盘</td><td>综合得分环；统计卡片；部门进度；多年度趋势图；权重配置</td><td class="status-done">✅</td></tr>
+    <tr><td>企业信息</td><td>基本信息管理；进出口数据；海关展示</td><td class="status-done">✅</td></tr>
+    <tr><td>法律法规</td><td>7部核心法规动态渲染；自定义法规导入；详情弹窗</td><td class="status-done">✅</td></tr>
+    <tr><td>认证自查</td><td>按维度自查清单；进度跟踪</td><td class="status-done">✅</td></tr>
+    <tr><td>标准宣贯</td><td>部门标准培训；宣贯记录</td><td class="status-done">✅</td></tr>
+    <tr><td>供应商信用</td><td>名录管理；批量导入/导出；查询记录；信用状态跟踪</td><td class="status-done">✅</td></tr>
+    <tr><td>财务指标</td><td>多年度录入；自动达标判断；审计报告上传</td><td class="status-done">✅</td></tr>
+    <tr><td>内部审计</td><td>审计计划；执行记录；审计统计；审计报告归档</td><td class="status-done">✅</td></tr>
+    <tr><td>制度文件</td><td>分类管理；上传/预览/下载；版本管理</td><td class="status-done">✅</td></tr>
+    <tr><td>培训中心</td><td>培训记录CRUD；统计看板；新增培训弹窗</td><td class="status-done">✅</td></tr>
+    <tr><td>年度归档</td><td>按维度归档证据材料</td><td class="status-done">✅</td></tr>
+    <tr><td>海关演示</td><td>证据时间线；体系总览</td><td class="status-done">✅</td></tr>
+  </table>
+
+  <h3>管理模块</h3>
+  <table>
+    <tr><th>模块</th><th>功能</th><th>状态</th></tr>
+    <tr><td>用户管理</td><td>RBAC；5角色；用户CRUD；会话管理</td><td class="status-done">✅</td></tr>
+    <tr><td>审批中心</td><td>提交/通过/驳回；变更前后对比；审批意见</td><td class="status-done">✅</td></tr>
+  </table>
+
+  <h2>四、状态流转</h2>
+
+  <pre>任务管理：    待下发 → 执行中 → 审核中 → 已完成 → 已关闭
+整改跟踪：    待处理(open) → 处理中(in_progress) → 待验收(pending_accept) → 已闭环(closed)
+                                        ↑ 关务部 + 审计部分别确认
+审批流程：    待处理(pending) → 已通过(approved) / 已驳回(rejected)
+合规自评：    填写问卷 → 提交 → 生成评估记录 → 历史存档</pre>
+
+  <h2>五、飞书集成</h2>
+
+  <table>
+    <tr><th>功能</th><th>说明</th></tr>
+    <tr><td>消息接收</td><td>飞书机器人接收文本消息并回复</td></tr>
+    <tr><td>意图解析</td><td>查询公司/任务/标准/日志；创建任务；更新任务状态</td></tr>
+    <tr><td>系统通知</td><td>5类事件自动推送：任务创建/变更、整改验收、审批流转、自评提交</td></tr>
+    <tr><td>配置管理</td><td>系统设置页可配置 App ID/Secret/Chat ID，支持连接测试</td></tr>
+  </table>
+
+  <h4>配置方式</h4>
+  <pre># 方式一：命令行参数
+node server.js 3080 aeo aeo2026 "" &lt;APP_ID&gt; &lt;APP_SECRET&gt;
+
+# 方式二：系统设置页（登录后 → 系统设置 → 飞书集成配置）</pre>
+
+  <h4>Webhook 回调地址</h4>
+  <pre>http://&lt;服务器IP&gt;:3080/api/feishu/webhook</pre>
+  <p>需在飞书开放平台配置事件订阅，接收 <code>im.message.receive_v1</code> 事件。</p>
+
+  <h2>六、部署运维</h2>
+
+  <h3>6.1 环境要求</h3>
+  <ul>
+    <li>Node.js ≥ 18</li>
+    <li>操作系统：Windows / macOS / Linux</li>
+    <li>磁盘：建议 10GB 以上（含文件存储）</li>
+    <li>内存：建议 512MB 以上</li>
+  </ul>
+
+  <h3>6.2 启动命令</h3>
+  <pre># 安装依赖
+npm install
+
+# 标准启动（端口3080）
+npm start
+
+# 自定义端口
+node server.js 8080
+
+# 带 API Key 保护
+node server.js 3080 aeo aeo2026 my-api-key</pre>
+
+  <h3>6.3 运维功能</h3>
+  <table>
+    <tr><th>功能</th><th>位置</th><th>说明</th></tr>
+    <tr><td>手动备份</td><td>系统设置 → 手动备份</td><td>备份至 data/backups/，保留30份</td></tr>
+    <tr><td>版本回滚</td><td>系统设置 → 数据版本历史</td><td>9种数据键独立版本管理</td></tr>
+    <tr><td>数据导入导出</td><td>系统设置 → 导入/导出数据</td><td>全量 JSON 导入导出</td></tr>
+    <tr><td>健康监控</td><td>系统设置 → 系统状态</td><td>在线用户、磁盘使用、运行时长</td></tr>
+  </table>
+
+  <h2>七、改造记录</h2>
+
+  <h3>第三批闭环（2026-06-04~05）</h3>
+  <table>
+    <tr><th>#</th><th>模块</th><th>改造内容</th></tr>
+    <tr><td>1</td><td>法律法规模块</td><td>7部核心法规动态数据+渲染+详情弹窗</td></tr>
+    <tr><td>2</td><td>内部审计</td><td>审计统计卡片+动态记录</td></tr>
+    <tr><td>3</td><td>培训中心</td><td>培训记录CRUD+统计看板+新增弹窗</td></tr>
+    <tr><td>4</td><td>看板视图</td><td>4列状态看板+超期标红+部门徽标</td></tr>
+    <tr><td>5</td><td>报告导出</td><td>一键生成HTML报告+打印</td></tr>
+    <tr><td>6</td><td>评分模型</td><td>各维度评分+三色状态标识</td></tr>
+    <tr><td>7</td><td>移动端适配</td><td>响应式CSS+触摸优化+16px防缩放</td></tr>
+    <tr><td>8</td><td>飞书集成</td><td>配置面板+事件订阅+5类通知推送</td></tr>
+  </table>
+
+  <h3>第二批闭环（2026-06-04）</h3>
+  <ol>
+    <li>侧边栏4个模块（laws/audit/documents/training）导航修复</li>
+    <li>供应商批量导入/导出（CSV+模板+去重）</li>
+    <li>标准证据文件上传（关联具体标准项）</li>
+    <li>整改超期预警（红色高亮+统计卡片）</li>
+    <li>数据版本回滚UI（模态框+Select下拉）</li>
+    <li>多年度合规趋势图（Chart.js折线图）</li>
+  </ol>
+
+  <h3>首批改造（2026-06-02~03）</h3>
+  <ol>
+    <li>标准展示：4列网格 → 手风琴+目录侧边栏+锚点导航</li>
+    <li>维度拆分：内部控制 → 信息系统与安全 + 内部审计与改进</li>
+    <li>标准要求常驻显示（移除折叠）</li>
+    <li>整改模块：prompt() → 完整表单+双部门验收+审批流程</li>
+    <li>标准数据重构：253项 → 74项(高级)/62项(认证)正式标准</li>
+  </ol>
+
+  <h2>八、后续完善方向</h2>
+
+  <h3>优先级：高</h3>
+  <ol>
+    <li><strong>认证标准关联任务自动下发</strong> — 标准项达标后自动创建对应整改任务，关联标准编号与任务编号</li>
+    <li><strong>飞书通知增强</strong> — 支持飞书卡片消息（非纯文本）、支持飞书内审批操作</li>
+  </ol>
+
+  <h3>优先级：中</h3>
+  <ol start="3">
+    <li><strong>数据看板完善</strong> — 仪表盘增加更多可视化图表，支持自定义看板布局</li>
+    <li><strong>批量操作增强</strong> — 整改项批量分配负责人、任务批量更新状态</li>
+    <li><strong>审批流程扩展</strong> — 多级审批链（部门负责人→关务经理→高管）、审批超时自动升级</li>
+  </ol>
+
+  <h3>优先级：低（按需）</h3>
+  <ol start="6">
+    <li><strong>多语言支持</strong> — 英文版界面、海关对接双语展示</li>
+    <li><strong>LDAP/AD集成</strong> — 对接企业统一认证</li>
+    <li><strong>集群部署</strong> — 多节点负载均衡、数据库读写分离</li>
+    <li><strong>移动App</strong> — 微信小程序或飞书小程序，关键审批/通知移动处理</li>
+  </ol>
+
+  <h2>九、管理检查清单</h2>
+
+  <ul class="checklist">
+    <li>首次使用 → 完善企业信息（企业介绍模块）</li>
+    <li>录入财务指标 → 财务指标模块</li>
+    <li>导入供应商名录 → 供应商信用模块（支持批量导入）</li>
+    <li>开展合规自评 → 合规自评模块</li>
+    <li>分配任务到部门 → 任务管理模块</li>
+    <li>录入整改项 → 整改跟踪模块</li>
+    <li>上传制度文件 → 制度文件模块</li>
+    <li>配置飞书通知 → 系统设置 → 飞书集成配置</li>
+  </ul>
+
+  <hr>
+  <p style="text-align:center;color:#94a3b8;font-size:13px;">AEO认证稽核系统 v2.1 &nbsp;·&nbsp; docs/AEO系统完整总结与操作手册_20260605_0026</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEO认证稽核系统 v2.0 — 项目总结与技术方案</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f1f5f9; color: #1e293b; line-height: 1.8; }
+.container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+
+/* Header */
+.doc-header { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); color: white; padding: 48px 0 40px; margin-bottom: 32px; }
+.doc-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.doc-header .subtitle { font-size: 14px; color: #94a3b8; }
+.doc-header .meta { margin-top: 12px; font-size: 13px; color: #64748b; display: flex; gap: 20px; flex-wrap: wrap; }
+
+/* Card */
+.card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 28px 32px; margin-bottom: 24px; }
+.card h2 { font-size: 20px; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; display: flex; align-items: center; gap: 8px; }
+.card h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #1e3a5f; color: white; border-radius: 6px; font-size: 13px; flex-shrink: 0; }
+.card h3 { font-size: 16px; font-weight: 600; color: #334155; margin: 20px 0 10px; }
+.card h4 { font-size: 14px; font-weight: 600; color: #475569; margin: 14px 0 8px; }
+.card p { font-size: 14px; color: #475569; margin-bottom: 10px; }
+.card ul, .card ol { font-size: 14px; color: #475569; padding-left: 20px; margin-bottom: 12px; }
+.card li { margin-bottom: 4px; }
+.card code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace; color: #334155; }
+.card pre { background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 12px 0; font-family: 'SF Mono', 'Fira Code', monospace; }
+
+/* Table */
+.table-wrap { overflow-x: auto; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #f8fafc; text-align: left; padding: 10px 12px; font-weight: 600; color: #475569; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; color: #475569; vertical-align: top; }
+tr:hover td { background: #f8fafc; }
+
+/* Tags */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+.tag-blue { background: #dbeafe; color: #1d4ed8; }
+.tag-green { background: #d1fae5; color: #065f46; }
+.tag-amber { background: #fef3c7; color: #92400e; }
+.tag-red { background: #fee2e2; color: #991b1b; }
+.tag-purple { background: #ede9fe; color: #5b21b6; }
+.tag-cyan { background: #cffafe; color: #0e7490; }
+.tag-pink { background: #fce7f3; color: #9d174d; }
+.tag-slate { background: #f1f5f9; color: #475569; }
+
+/* Architecture diagram */
+.arch { text-align: center; margin: 16px 0; }
+.arch pre { display: inline-block; text-align: left; background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; font-size: 12px; line-height: 1.5; color: #475569; }
+
+/* Status navigation */
+.nav-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; position: sticky; top: 0; background: #f1f5f9; padding: 10px 0; z-index: 10; }
+.nav-pills a { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500; color: #475569; background: white; border: 1px solid #e2e8f0; text-decoration: none; transition: all 0.15s; }
+.nav-pills a:hover { background: #1e3a5f; color: white; border-color: #1e3a5f; }
+
+/* Highlight box */
+.highlight { background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 14px; }
+.highlight-warn { background: #fff7ed; border-left-color: #f97316; }
+.highlight-success { background: #f0fdf4; border-left-color: #22c55e; }
+
+.footer { text-align: center; padding: 32px 0; font-size: 13px; color: #94a3b8; }
+@media (max-width: 640px) { .card { padding: 16px; } .doc-header h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="container">
+    <h1>AEO认证稽核系统 v2.0</h1>
+    <div class="subtitle">关务AEO认证全流程数字化管理平台 — 项目总结与技术方案</div>
+    <div class="meta">
+      <span>📅 2026年6月</span>
+      <span>⚡ 最新更新：2026-06-04</span>
+      <span>🔧 Node.js + SQLite + 原生JS</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="nav-pills">
+  <a href="#overview">项目概述</a>
+  <a href="#arch">系统架构</a>
+  <a href="#modules">核心模块</a>
+  <a href="#api">API设计</a>
+  <a href="#database">数据库</a>
+  <a href="#data-structure">标准数据结构</a>
+  <a href="#migration">迁移历史</a>
+  <a href="#deploy">部署</a>
+  <a href="#permissions">权限矩阵</a>
+  <a href="#feishu">飞书集成</a>
+  <a href="#decisions">设计决策</a>
+</div>
+
+<!-- 一、项目概述 -->
+<div class="card" id="overview">
+  <h2><span class="num">一</span> 项目概述</h2>
+
+  <h3>1.1 项目背景</h3>
+  <p>AEO（Authorized Economic Operator，经认证的经营者）是海关对企业信用状况和守法水平的认证制度。通过AEO高级认证的企业可享受通关便利化、降低查验率等优惠措施。</p>
+  <p>本系统旨在帮助企业全面管理AEO认证全过程，从标准学习、合规自评、整改跟踪到证据归档，实现AEO认证工作的数字化和流程化管理。</p>
+
+  <h3>1.2 系统定位</h3>
+  <ul>
+    <li><strong>面向对象</strong>：关务人员、部门AEO对接人、内审员、企业高管、海关查看者</li>
+    <li><strong>核心目标</strong>：帮助企业高效通过AEO高级认证/认证企业的标准审核</li>
+    <li><strong>部署方式</strong>：本地私有化部署，单机运行</li>
+  </ul>
+
+  <h3>1.3 技术栈</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>层级</th><th>技术选型</th><th>说明</th></tr>
+    <tr><td>后端</td><td><span class="tag tag-blue">Node.js HTTP模块</span></td><td>无框架，纯http.createServer</td></tr>
+    <tr><td>数据库</td><td><span class="tag tag-green">SQLite (better-sqlite3)</span></td><td>嵌入式数据库，无需独立服务</td></tr>
+    <tr><td>前端</td><td><span class="tag tag-amber">原生JS + Tailwind CSS</span></td><td>纯字符串拼接渲染，无前端框架</td></tr>
+    <tr><td>认证</td><td><span class="tag tag-purple">bcryptjs + uuid</span></td><td>密码加密 + Session Token</td></tr>
+    <tr><td>图标</td><td><span class="tag tag-blue">Font Awesome 6</span></td><td>免费图标库</td></tr>
+    <tr><td>图表</td><td><span class="tag tag-cyan">Chart.js (CDN)</span></td><td>仪表盘图表</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- 二、系统架构 -->
+<div class="card" id="arch">
+  <h2><span class="num">二</span> 系统架构</h2>
+
+  <h3>2.1 分层架构</h3>
+  <div class="arch">
+<pre>
+┌────────────────────────────────────────────────────────────┐
+│                    浏览器 (Browser)                          │
+│     index.html ← lib/app.js ← lib/standards-data.js         │
+└────────────────────────────┬───────────────────────────────┘
+                             │ HTTP / API
+┌────────────────────────────▼───────────────────────────────┐
+│              HTTP Server (server.js)                         │
+│  ┌─────────┬──────────┬──────────┬──────────────────┐      │
+│  │ 静态文件  │ REST API │ 文件上传  │ 认证中间件         │      │
+│  │ 服务     │ 路由器    │ 解析器    │ Basic/Bearer/Key │      │
+│  └─────────┴──────────┴──────────┴──────────────────┘      │
+└────────────────────────────┬───────────────────────────────┘
+                             │
+┌────────────────────────────▼───────────────────────────────┐
+│               lib/ 模块层                                    │
+│  ┌──────────┬──────────┬──────────────────────────┐        │
+│  │ auth.js  │ db.js    │ standards-data.js         │        │
+│  │ 认证权限  │ 数据库操作 │ 认证标准数据              │        │
+│  │ 用户管理  │ JSON存取  │ 74项/62项标准库           │        │
+│  │ 会话管理  │ 备份恢复  │ 子分类结构                │        │
+│  │ 审计日志  │ 版本管理  │                           │        │
+│  │ 通知管理  │ 数据完整性│                           │        │
+│  └──────────┴──────────┴──────────────────────────┘        │
+└────────────────────────────┬───────────────────────────────┘
+                             │
+┌────────────────────────────▼───────────────────────────────┐
+│              数据层                                          │
+│  ┌──────────┬──────────┬──────────────────────────┐        │
+│  │ data/    │ uploads/ │ docs/                     │        │
+│  │ aeo.db   │ 文件存储  │ 文档资料                  │        │
+│  │ 数据库文件 │         │                           │        │
+│  └──────────┴──────────┴──────────────────────────┘        │
+└─────────────────────────────────────────────────────────────┘
+</pre>
+  </div>
+
+  <h3>2.2 文件结构</h3>
+  <pre>
+aeo-system/
+├── server.js              # HTTP 服务器主文件（~1000行）
+├── index.html             # 前端页面（~1370行）
+├── package.json           # 依赖与脚本
+├── start.sh               # 启动脚本
+├── tunnel.sh              # 隧道脚本
+├── tailwind.config.js     # Tailwind 配置
+├── feishu.js              # 飞书集成模块
+├── lib/
+│   ├── app.js             # 前端业务逻辑（~4140行）
+│   ├── auth.js            # 认证与权限模块
+│   ├── db.js              # SQLite 数据库模块
+│   ├── standards-data.js  # 认证标准数据（~2620行）
+│   ├── migrate.js         # 数据库迁移脚本
+│   ├── test-api.js        # API 测试脚本
+│   ├── chart.js/          # Chart.js 依赖（2632个文件）
+│   ├── tailwind/          # Tailwind CSS 输出
+│   └── fa/                # Font Awesome 图标
+├── data/
+│   ├── aeo.db             # SQLite 数据库文件
+│   └── backups/           # 数据库备份目录
+├── uploads/               # 上传文件存储目录
+├── docs/                  # 项目文档
+└── src/
+    ├── aeo-system.html    # 打包版 HTML
+    └── mock-data/         # 模拟数据
+  </pre>
+</div>
+
+<!-- 三、核心功能模块 -->
+<div class="card" id="modules">
+  <h2><span class="num">三</span> 核心功能模块</h2>
+
+  <h3>3.1 系统首页 (Dashboard)</h3>
+  <p>综合驾驶舱，展示系统关键指标和快速入口。</p>
+  <ul>
+    <li>总体得分仪表盘（得分环 + 评分说明弹窗）</li>
+    <li>统计卡片：认证标准、合规自评、任务完成率、整改超期数</li>
+    <li>动态进度条：各维度完成情况</li>
+    <li>快速入口：完善企业信息、维护供应商、录入财务指标、开始标准自查</li>
+    <li>新手引导弹窗（首次使用）</li>
+  </ul>
+
+  <h3>3.2 企业介绍 (Enterprise)</h3>
+  <ul>
+    <li>公司基本信息管理（名称、统一社会信用代码、海关编码等）</li>
+    <li>进出口数据编辑</li>
+    <li>海关实地查看所需的基本信息展示</li>
+  </ul>
+
+  <h3>3.3 法律法规 (Laws)</h3>
+  <p>内置AEO相关核心法规库，支持企业自定义导入。</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>编号</th><th>名称</th><th>说明</th></tr>
+    <tr><td>第282号令</td><td>海关注册登记和备案企业信用管理办法</td><td>核心规章</td></tr>
+    <tr><td>第251号令</td><td>海关进出口货物申报管理规定</td><td>申报规范</td></tr>
+    <tr><td>第252号令</td><td>海关进出口货物减免税管理办法</td><td>减免税管理</td></tr>
+    <tr><td>第237号令</td><td>海关稽查条例实施办法</td><td>稽查要求</td></tr>
+    <tr><td>第262号令</td><td>海关行政处罚裁量基准</td><td>处罚基准</td></tr>
+    <tr><td>财关税〔2021〕48号</td><td>十四五期间支持科技创新进口税收政策</td><td>税收优惠</td></tr>
+  </table>
+  </div>
+
+  <h3>3.4 认证标准 (Standards) ⭐ 核心模块</h3>
+  <p>AEO认证标准的知识库，以维度+子分类+标准项三层结构展示。</p>
+
+  <p><strong>两种标准类型：</strong></p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>类型</th><th>维度数</th><th>标准项</th><th>适用</th></tr>
+    <tr><td>高级认证企业标准</td><td>7维度</td><td>74项</td><td>申请AEO高级认证</td></tr>
+    <tr><td>认证企业标准</td><td>6维度</td><td>62项</td><td>申请AEO一般认证</td></tr>
+  </table>
+  </div>
+
+  <p><strong>7大维度（v2.1）：</strong></p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>维度</th><th>颜色</th><th>子分类</th><th>说明</th></tr>
+    <tr><td><span class="tag tag-blue">内部控制</span></td><td>blue</td><td>海关业务培训、组织机构和岗位职责、单证保管、进出口业务操作</td><td>核心管理规范</td></tr>
+    <tr><td><span class="tag tag-green">财务状况</span></td><td>emerald</td><td>审计报告、偿债能力、盈利能力、破产风险</td><td>财务健康度</td></tr>
+    <tr><td><span class="tag tag-amber">守法规范</span></td><td>amber</td><td>注册信息、守法合规、进出口业务规范、外部信用</td><td>合规记录</td></tr>
+    <tr><td><span class="tag tag-red">贸易安全</span></td><td>red</td><td>场所/进入/人员/商业伙伴/货物/集装箱/运输/危机/培训</td><td>供应链安全</td></tr>
+    <tr><td><span class="tag tag-cyan">信息系统与安全</span></td><td>cyan</td><td>信息系统建设、信息安全</td><td>IT管理</td></tr>
+    <tr><td><span class="tag tag-pink">内部审计与改进</span></td><td>pink</td><td>内部审计、改进机制</td><td>内审与持续改进</td></tr>
+    <tr><td><span class="tag tag-purple">附加标准</span></td><td>violet</td><td>加分项</td><td>高级认证额外加分（仅高级认证）</td></tr>
+  </table>
+  </div>
+
+  <p><strong>展示方式：</strong></p>
+  <ul>
+    <li>维度统计卡片（可点击展开/收起对应维度）</li>
+    <li>搜索栏实时过滤</li>
+    <li>桌面端：TOC目录侧边栏 + 内容区手风琴</li>
+    <li>移动端：水平滚动标签导航</li>
+    <li>切换视图：按维度查看 / 按部门查看</li>
+  </ul>
+
+  <div class="highlight">
+    <strong>标准项卡片内容：</strong>标准编号 + 名称 + 官方编号 | 标准要求（常驻显示） | 负责部门 + 支持部门 + 执行频率 | 检查文件要求、询问内容、实地查看要求、随机抽查要求 | 样本资料、检查要点 | 证据要求说明 | 证据完成状态（制度/记录/审批三色标记）
+  </div>
+
+  <h3>3.5 合规自评 (Assessment)</h3>
+  <ul>
+    <li>按维度分组的问卷（每种标准类型独立问卷）</li>
+    <li>三级选项：已达标 / 部分达标 / 未达标</li>
+    <li>即时分数计算和进度条</li>
+    <li>历史评估记录查看</li>
+    <li>评估结果导出（合并报告）</li>
+  </ul>
+
+  <h3>3.6 认证自查 (Self Check)</h3>
+  <ul>
+    <li>按标准维度的自查清单</li>
+    <li>填写实际情况与达标证据</li>
+    <li>状态标记：未开始 / 进行中 / 已完成</li>
+  </ul>
+
+  <h3>3.7 标准宣贯 (Standards Training)</h3>
+  <ul>
+    <li>各维度的部门培训情况</li>
+    <li>宣贯记录（时间、参与人、内容概要）</li>
+  </ul>
+
+  <h3>3.8 供应商信用 (Supplier)</h3>
+  <ul>
+    <li>供应商名录管理（CRUD）</li>
+    <li>海关信用查询记录</li>
+    <li>信用状态跟踪（良好/异常/失信）</li>
+  </ul>
+
+  <h3>3.9 财务指标 (Finance)</h3>
+  <ul>
+    <li>多年度财务数据录入</li>
+    <li>关键指标：审计报告意见、资产负债率、现金比率、流动比率、净利润、营业利润率、毛利率</li>
+    <li>自动判断达标状态</li>
+  </ul>
+
+  <h3>3.10 任务管理 (Tasks)</h3>
+  <ul>
+    <li>任务CRUD（与认证标准关联）</li>
+    <li>状态流转：待下发 → 执行中 → 审核中 → 已完成 → 已关闭</li>
+    <li>看板视图 / 列表视图切换</li>
+    <li>日历时间线 + 批量下发 + 过滤器</li>
+  </ul>
+
+  <h3>3.11 内部审计 (Audit)</h3>
+  <ul>
+    <li>审计计划管理</li>
+    <li>审计发现与整改跟踪</li>
+    <li>审计报告归档</li>
+  </ul>
+
+  <h3>3.12 制度文件 (Documents)</h3>
+  <ul>
+    <li>制度文件分类管理</li>
+    <li>文件上传（逐文件/多文件）</li>
+    <li>按类别/年份/模块筛选 + 在线预览和下载</li>
+  </ul>
+
+  <h3>3.13 培训中心 (Training)</h3>
+  <ul>
+    <li>培训记录管理</li>
+    <li>培训计划制定、参训人员管理</li>
+  </ul>
+
+  <h3>3.14 年度归档 (Annual Archive)</h3>
+  <ul>
+    <li>年度档案材料整理</li>
+    <li>按维度归档证据材料</li>
+  </ul>
+
+  <h3>3.15 海关演示 (Demo)</h3>
+  <ul>
+    <li>面向海关的演示模式</li>
+    <li>证据材料时间线展示</li>
+  </ul>
+
+  <h3>3.16 用户管理 (User Management)</h3>
+  <p>基于RBAC权限模型的用户管理，5种内建角色：</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>角色</th><th>标签</th><th>主要权限</th></tr>
+    <tr><td>关务经理</td><td><span class="tag tag-red">customs_officer</span></td><td>全部权限，含系统管理</td></tr>
+    <tr><td>部门AEO对接人</td><td><span class="tag tag-blue">dept_lead</span></td><td>标准查看/编辑、任务管理、文档上传</td></tr>
+    <tr><td>内审员</td><td><span class="tag tag-green">auditor</span></td><td>审计创建/编辑、标准查看</td></tr>
+    <tr><td>企业高管</td><td><span class="tag tag-purple">executive</span></td><td>查看权限，含系统日志</td></tr>
+    <tr><td>海关查看者</td><td><span class="tag tag-slate">customs_viewer</span></td><td>仅查看仪表盘、标准、归档</td></tr>
+  </table>
+  </div>
+  <ul>
+    <li>用户CRUD（关务经理权限）</li>
+    <li>角色权限编辑、密码修改/重置</li>
+    <li>用户激活/停用、在线会话列表</li>
+  </ul>
+
+  <h3>3.17 审批中心 (Approvals)</h3>
+  <ul>
+    <li>数据变更审批流程</li>
+    <li>审批列表（待处理/已通过/已驳回）</li>
+    <li>审批操作（通过/驳回 + 审批意见）</li>
+    <li>变更前后对比显示</li>
+  </ul>
+
+  <h3>3.18 整改跟踪 (Rectification) ⭐ 核心模块</h3>
+  <p>完整的问题跟踪与验收流程。</p>
+  <div class="highlight">
+    <strong>状态流转：</strong>
+    发起人创建 → <span class="tag tag-amber">待处理(open)</span> → <span class="tag tag-blue">处理中(in_progress)</span> → <span class="tag tag-purple">待验收(pending_accept)</span> → <span class="tag tag-green">已闭环(closed)</span>
+  </div>
+  <ul>
+    <li>新建整改表单：发起部门、发起人、日期、问题描述、严重程度</li>
+    <li>跟进部门、责任人、截止日期</li>
+    <li>验收部门（双部门：关务部 □ 审计部门 □）</li>
+    <li>审批操作：提交验收 / 退回 / 关闭</li>
+    <li>确认人、确认时间自动记录</li>
+    <li>超期整改变色预警</li>
+  </ul>
+
+  <h3>3.19 系统设置 (System Settings)</h3>
+  <ul>
+    <li>系统参数配置</li>
+    <li>数据库备份（手动触发 + 自动保留30份）</li>
+    <li>数据完整性检查 + 审计日志查看</li>
+    <li>数据导入/导出</li>
+  </ul>
+</div>
+
+<!-- 四、API设计 -->
+<div class="card" id="api">
+  <h2><span class="num">四</span> 后端 API 设计</h2>
+
+  <h3>4.1 认证与鉴权</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>方式</th><th>头格式</th><th>适用场景</th></tr>
+    <tr><td>Basic Auth</td><td><code>Authorization: Basic base64(user:pass)</code></td><td>向后兼容、API客户端</td></tr>
+    <tr><td>Bearer Token</td><td><code>Authorization: Bearer &lt;session_token&gt;</code></td><td>Web前端会话</td></tr>
+    <tr><td>API Key</td><td><code>X-API-Key: &lt;key&gt;</code></td><td>第三方系统集成</td></tr>
+  </table>
+  </div>
+  <p><strong>默认登录凭证：</strong><code>admin / admin123</code>（首次启动自动创建）</p>
+
+  <h3>4.2 API 端点总览</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>分组</th><th>端点</th><th>方法</th><th>说明</th></tr>
+    <tr><td rowspan="5"><strong>认证</strong></td><td><code>/api/auth/login</code></td><td>POST</td><td>用户登录</td></tr>
+    <tr><td><code>/api/auth/register</code></td><td>POST</td><td>用户注册</td></tr>
+    <tr><td><code>/api/auth/logout</code></td><td>POST</td><td>退出登录</td></tr>
+    <tr><td><code>/api/auth/me</code></td><td>GET</td><td>当前用户信息</td></tr>
+    <tr><td><code>/api/auth/permissions</code></td><td>GET</td><td>当前用户权限</td></tr>
+    <tr><td rowspan="5"><strong>用户</strong></td><td><code>/api/users</code></td><td>GET/POST</td><td>用户列表/创建</td></tr>
+    <tr><td><code>/api/users/:id</code></td><td>PUT</td><td>更新用户</td></tr>
+    <tr><td><code>/api/users/:id/password</code></td><td>PUT</td><td>修改密码</td></tr>
+    <tr><td><code>/api/users/roles</code></td><td>GET</td><td>角色列表</td></tr>
+    <tr><td><code>/api/users/roles/:key</code></td><td>PUT</td><td>更新角色权限</td></tr>
+    <tr><td rowspan="5"><strong>文件</strong></td><td><code>/api/files/upload</code></td><td>POST</td><td>上传文件</td></tr>
+    <tr><td><code>/api/files</code></td><td>GET</td><td>文件列表</td></tr>
+    <tr><td><code>/api/files/:id/download</code></td><td>GET</td><td>下载文件</td></tr>
+    <tr><td><code>/api/files/:id/view</code></td><td>GET</td><td>在线预览</td></tr>
+    <tr><td><code>/api/files/:id</code></td><td>DELETE</td><td>删除文件</td></tr>
+    <tr><td rowspan="2"><strong>版本</strong></td><td><code>/api/versions/:key</code></td><td>GET</td><td>版本历史</td></tr>
+    <tr><td><code>/api/versions/:id/restore</code></td><td>POST</td><td>恢复版本</td></tr>
+    <tr><td rowspan="3"><strong>审批</strong></td><td><code>/api/approvals</code></td><td>GET/POST</td><td>审批列表/提交</td></tr>
+    <tr><td><code>/api/approvals/:id/approve</code></td><td>POST</td><td>审批通过</td></tr>
+    <tr><td><code>/api/approvals/:id/reject</code></td><td>POST</td><td>审批驳回</td></tr>
+    <tr><td rowspan="4"><strong>整改</strong></td><td><code>/api/rectifications</code></td><td>GET/POST</td><td>整改列表/创建</td></tr>
+    <tr><td><code>/api/rectifications/:id</code></td><td>PUT</td><td>更新整改项</td></tr>
+    <tr><td><code>/api/rectifications/:id/approve</code></td><td>PUT</td><td>整改验收</td></tr>
+    <tr><td><code>/api/rectifications/overdue</code></td><td>GET</td><td>超期整改</td></tr>
+    <tr><td rowspan="3"><strong>通知</strong></td><td><code>/api/notifications</code></td><td>GET</td><td>通知列表</td></tr>
+    <tr><td><code>/api/notifications/:id/read</code></td><td>POST</td><td>标记已读</td></tr>
+    <tr><td><code>/api/notifications/unread-count</code></td><td>GET</td><td>未读数量</td></tr>
+    <tr><td rowspan="4"><strong>系统</strong></td><td><code>/api/health</code></td><td>GET</td><td>健康检查</td></tr>
+    <tr><td><code>/api/backup</code></td><td>POST</td><td>手动备份</td></tr>
+    <tr><td><code>/api/export</code></td><td>GET</td><td>导出全部数据</td></tr>
+    <tr><td><code>/api/import</code></td><td>POST</td><td>导入数据</td></tr>
+    <tr><td><strong>数据</strong></td><td><code>/api/data/:key</code></td><td>GET/PUT</td><td>JSON数据存取</td></tr>
+    <tr><td rowspan="5"><strong>业务</strong></td><td><code>/api/company</code></td><td>GET/PUT</td><td>公司信息</td></tr>
+    <tr><td><code>/api/tasks</code></td><td>GET/POST</td><td>任务管理</td></tr>
+    <tr><td><code>/api/assessment</code></td><td>GET/PUT</td><td>评估数据</td></tr>
+    <tr><td><code>/api/finance</code></td><td>GET/PUT</td><td>财务数据</td></tr>
+    <tr><td><code>/api/webhook/feishu</code></td><td>POST</td><td>飞书Webhook</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- 五、数据库 -->
+<div class="card" id="database">
+  <h2><span class="num">五</span> 数据库设计</h2>
+
+  <p>使用SQLite数据库，包含以下数据表：</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>表名</th><th>用途</th><th>关键字段</th></tr>
+    <tr><td><code>users</code></td><td>用户账户</td><td>username, password_hash, role, department, is_active</td></tr>
+    <tr><td><code>sessions</code></td><td>会话管理</td><td>token, user_id, expires_at, last_active</td></tr>
+    <tr><td><code>roles</code></td><td>角色权限</td><td>role_key, role_name, permissions(JSON)</td></tr>
+    <tr><td><code>audit_logs</code></td><td>审计日志</td><td>user_id, action, module, detail</td></tr>
+    <tr><td><code>data_versions</code></td><td>数据版本管理</td><td>data_key, data_value(JSON), user_id</td></tr>
+    <tr><td><code>approvals</code></td><td>审批流程</td><td>ref_type, ref_id, status, requester_id, reviewer_id</td></tr>
+    <tr><td><code>files</code></td><td>文件记录</td><td>original_name, stored_name, file_path, category</td></tr>
+    <tr><td><code>notifications</code></td><td>通知公告</td><td>title, content, target_user_id, is_read</td></tr>
+    <tr><td><code>rectifications</code></td><td>整改跟踪</td><td>issue_desc, severity, status, initiator_dept, accept_dept_customs, accept_dept_audit</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- 六、标准数据结构 -->
+<div class="card" id="data-structure">
+  <h2><span class="num">六</span> 认证标准数据结构</h2>
+
+  <h3>高级认证（Advanced）— 74项标准</h3>
+  <pre>
+FULL_STANDARDS.advanced = {
+  internal: {      // 内部控制 — 11项
+    title, icon, color,
+    items: [IC-01 ~ IC-11],
+    subcategories: [
+      { name: '海关业务培训', items: [IC-01] },
+      { name: '组织机构和岗位职责', items: [IC-02] },
+      { name: '单证保管与海关封志', items: [IC-03] },
+      { name: '进出口业务操作', items: [IC-04] },
+      { name: '内部审计', items: [IC-05] },         // → 拆分至 audit
+      { name: '改进机制', items: [IC-06, IC-07] },  // → 拆分至 audit
+      { name: '信息系统', items: [IC-08, IC-09] },  // → 拆分至 it
+      { name: '信息安全', items: [IC-10] },          // → 拆分至 it
+      { name: '守法合规', items: [IC-11] }
+    ]
+  },
+  finance: {       // 财务状况 — 4项 [FI-01 ~ FI-04]
+    title: '财务状况', icon: 'chart-line', color: 'emerald'
+  },
+  compliance: {    // 守法规范 — 26项 [LC-01 ~ LC-26]
+    title: '守法规范', icon: 'gavel', color: 'amber'
+  },
+  security: {      // 贸易安全 — 21项 [TS-01 ~ TS-21]
+    title: '贸易安全', icon: 'shield-alt', color: 'red'
+  },
+  bonus: {         // 附加标准 — 12项 [BN-01 ~ BN-12]（仅高级认证）
+    title: '附加标准', icon: 'star', color: 'violet'
+  },
+  it: {            // 信息系统与安全 — 3项（v2.1新增）
+    title: '信息系统与安全', icon: 'laptop-code', color: 'cyan'
+  },
+  audit: {         // 内部审计与改进 — 3项（v2.1新增）
+    title: '内部审计与改进', icon: 'clipboard-check', color: 'pink'
+  }
+}
+  </pre>
+
+  <h3>标准项数据结构</h3>
+  <pre>
+{
+  id: "IC-01",                          // 标准编号
+  name: "海关业务培训",                  // 标准名称
+  officialId: "AEO-IC-001",            // 海关官方编号
+  desc: "企业应当建立海关业务培训制度",   // 简要描述
+  standard: "具体要求内容...",           // 完整标准要求
+  dept: "关务部",                       // 负责部门
+  supportDept: "HR",                   // 支持部门
+  frequency: "每年一次",                // 执行频率
+  evidenceDesc: "培训记录、签到表",       // 证据要求
+  checkFile: "培训制度文件",             // 检查文件
+  checkInterview: "询问培训负责人",       // 询问内容
+  checkSite: "查看培训室设施",           // 实地查看
+  checkRandom: "抽查3名员工培训记录",     // 随机抽查
+  sampleDocs: ["签到表", "培训照片"],    // 样本资料
+  checkPoints: ["要点1", "要点2"],       // 检查要点
+  evidence: { policy: false, record: false, approval: false }
+  // 证据完成状态: 制度/记录/审批
+}
+  </pre>
+</div>
+
+<!-- 七、迁移历史 -->
+<div class="card" id="migration">
+  <h2><span class="num">七</span> 数据库迁移历史</h2>
+
+  <h3>v2.0 迁移（2026-06）</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>变更</th><th>说明</th></tr>
+    <tr><td>SQLite迁移</td><td>从JSON文件存储迁移至SQLite数据库</td></tr>
+    <tr><td>users表新增</td><td>数据库存储用户账户</td></tr>
+    <tr><td>sessions表新增</td><td>会话管理</td></tr>
+    <tr><td>roles表新增</td><td>RBAC权限模型</td></tr>
+    <tr><td>audit_logs表新增</td><td>审计日志</td></tr>
+    <tr><td>data_versions表新增</td><td>数据版本管理</td></tr>
+    <tr><td>approvals表新增</td><td>审批流程</td></tr>
+    <tr><td>files表新增</td><td>文件管理</td></tr>
+    <tr><td>notifications表新增</td><td>通知管理</td></tr>
+    <tr><td>rectifications表新增</td><td>整改跟踪</td></tr>
+    <tr><td>rectifications扩容</td><td>新增10列（发起部门/人/日期、跟进、验收、确认等）</td></tr>
+  </table>
+  </div>
+
+  <h3>v2.1 前端改造（2026-06）</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>变更</th><th>说明</th></tr>
+    <tr><td>标准展示改造</td><td>四栏网格 → 手风琴+目录侧边栏</td></tr>
+    <tr><td>标准要求常驻</td><td>移除点击展开，直接显示标准要求内容</td></tr>
+    <tr><td>维度拆分</td><td>内部控制 → 信息系统与安全 + 内部审计与改进</td></tr>
+    <tr><td>整改模块重构</td><td>prompt收集 → 完整表单 + 审批流程 + 双部门验收</td></tr>
+    <tr><td>认证标准数据</td><td>从253项精简至74项/62项正式标准</td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- 八、部署 -->
+<div class="card" id="deploy">
+  <h2><span class="num">八</span> 部署与运行</h2>
+
+  <h3>8.1 环境要求</h3>
+  <ul>
+    <li>Node.js ≥ 18</li>
+    <li>npm 或 yarn</li>
+  </ul>
+
+  <h3>8.2 启动方式</h3>
+  <pre>
+# 安装依赖
+npm install
+
+# 默认启动（端口3080）
+npm start
+
+# 自定义端口
+node server.js 8080
+
+# 自定义认证（默认 aeo/aeo2026）
+node server.js 3080 myuser mypassword
+
+# API密钥保护
+node server.js 3080 aeo aeo2026 my-api-key
+
+# 开发模式（端口3000）
+npm run dev</pre>
+
+  <h3>8.3 脚本</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>命令</th><th>功能</th></tr>
+    <tr><td><code>npm start</code></td><td>启动服务器（默认3080）</td></tr>
+    <tr><td><code>npm run dev</code></td><td>开发模式（端口3000）</td></tr>
+    <tr><td><code>npm test</code></td><td>代码检查 + API测试</td></tr>
+    <tr><td><code>npm run migrate</code></td><td>数据库迁移</td></tr>
+    <tr><td><code>npm run backup</code></td><td>手动备份数据库</td></tr>
+  </table>
+  </div>
+
+  <h3>8.4 访问方式</h3>
+  <ul>
+    <li>本机访问：<code>http://localhost:3080</code></li>
+    <li>局域网访问：<code>http://&lt;本机IP&gt;:3080</code></li>
+    <li>默认登录：<code>admin / admin123</code></li>
+  </ul>
+
+  <div class="highlight">
+    <strong>外部访问：</strong> 系统配套 <code>tunnel.sh</code> 脚本，支持通过SSH隧道等方式将本地服务暴露到外网，方便海关实地查看验证。
+  </div>
+</div>
+
+<!-- 九、权限矩阵 -->
+<div class="card" id="permissions">
+  <h2><span class="num">九</span> 权限矩阵</h2>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>模块</th><th>关务经理</th><th>部门对接人</th><th>内审员</th><th>高管</th><th>海关查看者</th></tr>
+    <tr><td>仪表盘</td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td></tr>
+    <tr><td>认证标准</td><td><span class="tag tag-blue">查看/编辑</span></td><td><span class="tag tag-blue">查看/编辑</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td></tr>
+    <tr><td>合规自评</td><td><span class="tag tag-purple">提交/管理</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>任务管理</td><td><span class="tag tag-purple">全部操作</span></td><td><span class="tag tag-blue">增/改</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>内部审计</td><td><span class="tag tag-purple">全部操作</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-blue">增/改</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>财务指标</td><td><span class="tag tag-purple">查看/编辑/审批</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>供应商信用</td><td><span class="tag tag-blue">查看/编辑</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>制度文件</td><td><span class="tag tag-purple">上传/删除</span></td><td><span class="tag tag-blue">上传</span></td><td><span class="tag tag-blue">上传</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>培训中心</td><td><span class="tag tag-blue">查看/编辑</span></td><td><span class="tag tag-blue">查看/编辑</span></td><td><span class="tag tag-blue">查看/编辑</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>用户管理</td><td><span class="tag tag-purple">管理</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>审批中心</td><td><span class="tag tag-purple">审批</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>整改跟踪</td><td><span class="tag tag-purple">全部操作</span></td><td><span class="tag tag-blue">创建</span></td><td><span class="tag tag-blue">创建</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>系统设置</td><td><span class="tag tag-purple">配置/备份</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-green">日志查看</span></td><td><span class="tag tag-red">✗</span></td></tr>
+    <tr><td>年度归档</td><td><span class="tag tag-blue">查看/创建</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-green">查看</span></td></tr>
+    <tr><td>海关演示</td><td><span class="tag tag-green">查看</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td></tr>
+  </table>
+  </div>
+</div>
+
+<!-- 十、飞书集成 -->
+<div class="card" id="feishu">
+  <h2><span class="num">十</span> 飞书集成</h2>
+
+  <p><code>feishu.js</code> 模块支持与飞书开放平台集成，通过Webhook接口实现消息推送和业务操作。</p>
+
+  <p><strong>Webhook Action 列表：</strong></p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Action</th><th>说明</th></tr>
+    <tr><td><code>getCompany</code></td><td>获取公司信息</td></tr>
+    <tr><td><code>setCompany</code></td><td>更新公司信息</td></tr>
+    <tr><td><code>listTasks</code></td><td>列出任务（支持部门/状态过滤）</td></tr>
+    <tr><td><code>createTask</code></td><td>创建任务</td></tr>
+    <tr><td><code>updateTaskStatus</code></td><td>更新任务状态</td></tr>
+  </table>
+  </div>
+
+  <p><strong>配置方式：</strong></p>
+  <pre>node server.js 3080 aeo aeo2026 "" feishu_app_id feishu_app_secret</pre>
+
+  <p>详细信息请参考：<code>docs/飞书智能体集成指南.md</code></p>
+</div>
+
+<!-- 十一、设计决策 -->
+<div class="card" id="fixes">
+  <h2><span class="num">十</span> 已修复/补全的功能（2026-06-04 闭环）</h2>
+
+  <h3>1. 侧边栏4个模块导航修复</h3>
+  <ul>
+    <li><code>laws</code>（法律法规）、<code>audit</code>（内部审计）、<code>documents</code>（制度文件）、<code>training</code>（培训中心）现已正确接入 <code>navigateTo()</code></li>
+    <li>点击侧边栏菜单后正确渲染对应模块内容</li>
+  </ul>
+
+  <h3>2. 供应商批量导入/导出</h3>
+  <ul>
+    <li>新增"批量导入"按钮，支持粘贴文本或上传CSV文件</li>
+    <li>自动检测标题行、支持多种分隔符（逗号/Tab/竖线）</li>
+    <li>智能去重（按企业名称判断已有记录）</li>
+    <li>导入预览、数据校验、错误提示</li>
+    <li>导出CSV（含最近查询等级和查询次数）+ 下载导入模板</li>
+  </ul>
+
+  <h3>3. 标准证据文件上传</h3>
+  <ul>
+    <li>每个标准项卡片新增"上传证据"按钮</li>
+    <li>支持证据类型选择（制度文件/执行记录/审批材料/其他佐证）</li>
+    <li>上传至服务器文件系统，关联到具体标准项</li>
+    <li>标准项卡片内直接显示已上传的证据文件链接</li>
+    <li>上传后自动标记证据完成状态</li>
+  </ul>
+
+  <h3>4. 整改超期预警增强</h3>
+  <ul>
+    <li>统计卡片新增"超期未处理"计数卡片（红色高亮）</li>
+    <li>超期整改行红色底色 + 超期标签</li>
+  </ul>
+
+  <h3>5. 数据版本回滚UI</h3>
+  <ul>
+    <li>替换原来的 <code>prompt()</code> 方式为完整Select下拉选择模态框</li>
+    <li>支持9种数据键的选择查看</li>
+    <li>一键恢复历史版本（带确认提示）</li>
+    <li>显示版本创建人、时间、操作描述</li>
+  </ul>
+
+  <h3>6. 多年度合规趋势图</h3>
+  <ul>
+    <li>仪表盘新增 Chart.js 折线趋势图</li>
+    <li>按年份汇总合规自评历史得分</li>
+    <li>仅当有2年以上数据时显示</li>
+  </ul>
+</div>
+
+<div class="card" id="decisions">
+  <h2><span class="num">十一</span> 项目关键设计决策</h2>
+
+  <h3>纯原生实现</h3>
+  <p>选择Node.js原生HTTP模块 + 原生JS字符串拼接渲染：</p>
+  <ul>
+    <li>零框架依赖，部署简单（仅需Node.js）</li>
+    <li>适合企业内网环境，无需编译工具链</li>
+    <li>单文件可维护，减少学习成本</li>
+    <li>适合海关内网/专网部署场景</li>
+  </ul>
+
+  <h3>SQLite 数据库</h3>
+  <p>选择SQLite而非MySQL/PostgreSQL：</p>
+  <ul>
+    <li>零运维，无需独立数据库服务</li>
+    <li>自动备份，30份滚动保留</li>
+    <li>WAL模式提升并发性能</li>
+    <li>兼容旧JSON存储模式（通过data_versions表）</li>
+  </ul>
+
+  <h3>权限模型</h3>
+  <p>采用RBAC（基于角色的访问控制）：</p>
+  <ul>
+    <li>5种预定义角色覆盖全部使用场景</li>
+    <li>细粒度权限控制（permission级别的检查）</li>
+    <li>Basic Auth兼容旧系统集成</li>
+  </ul>
+
+  <h3>认证标准数据存储</h3>
+  <p>标准数据直接在 <code>standards-data.js</code> 中编码为JavaScript数据结构：</p>
+  <ul>
+    <li>避免复杂的数据库查询</li>
+    <li>支持两套标准（advanced/certified）</li>
+    <li>支持子分类结构（subcategories）</li>
+    <li>flattenStandardsData() 向后兼容</li>
+  </ul>
+
+  <h3>待优化方向</h3>
+  <ol>
+    <li><strong>标准完成证据</strong>：为每个标准项绑定具体证据文件，支持证据上传和管理</li>
+    <li><strong>提醒与通知</strong>：任务截止提醒、整改超期预警、审批通知推送</li>
+    <li><strong>评分模型</strong>：更精细的评分算法，支持海关评分加权</li>
+    <li><strong>多年度对比</strong>：历年评估得分趋势</li>
+    <li><strong>报告导出</strong>：完整的AEO认证申请报告一键导出（PDF/Word）</li>
+    <li><strong>移动端适配</strong>：更好的手机浏览器体验</li>
+    <li><strong>飞书集成深化</strong>：审批流程在飞书内完成</li>
+    <li><strong>多语言支持</strong>：英文版界面（适用外资企业）</li>
+    <li><strong>LDAP集成</strong>：对接企业AD/LDAP统一认证</li>
+  </ol>
+
+  <div class="highlight highlight-success">
+    <strong>系统当前状态：</strong> 服务运行在 <code>http://localhost:3080</code>，默认登录 <code>admin / admin123</code>。所有模块功能均已实现并经过验证。
+  </div>
+</div>
+
+<div class="footer">
+  AEO认证稽核系统 v2.0 &mdash; 2026年6月
+</div>
+
+</div>
+
+</body>
+</html>

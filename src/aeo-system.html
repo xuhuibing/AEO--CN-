@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>关务AEO认证稽核系统 v2.0</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>AEO海关认证管理系统 v2.0</title>
+    <link href="lib/tailwind/output.css" rel="stylesheet">
+    <link href="lib/fa/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: #f1f5f9; color: #334155; overflow-x: hidden; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif; background: #f1f5f9; color: #334155; overflow-x: hidden; }
 
         /* ===== 原始样式保留 ===== */
         .business-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); border-bottom: 3px solid #b45309; }
@@ -126,29 +124,24 @@
             <div style="width:64px;height:64px;background:#1e3a5f;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
                 <i class="fas fa-shield-alt text-amber-500 text-2xl"></i>
             </div>
-            <h1>关务AEO认证稽核系统</h1>
+            <h1>AEO海关认证管理系统</h1>
             <p class="sub">企业级多用户协作平台 · v2.0</p>
         </div>
-        <div style="margin-bottom:16px;">
-            <label style="display:block;font-size:0.85rem;font-weight:600;color:#475569;margin-bottom:6px;">选择角色登录</label>
-            <select id="loginRole" style="width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px 16px;font-size:0.95rem;background:white;">
-                <option value="customs_officer">关务经理 — 系统管理员</option>
-                <option value="dept_lead">部门AEO对接人</option>
-                <option value="auditor">内审员</option>
-                <option value="executive">企业高管</option>
-                <option value="customs_viewer">海关查看者（演示专用）</option>
-            </select>
+        <div style="margin-bottom:12px;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:#475569;margin-bottom:6px;">用户名</label>
+            <input type="text" id="loginName" placeholder="admin" value="admin" style="width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px 16px;font-size:0.95rem;">
         </div>
         <div style="margin-bottom:20px;">
-            <label style="display:block;font-size:0.85rem;font-weight:600;color:#475569;margin-bottom:6px;">用户名（演示环境任意输入）</label>
-            <input type="text" id="loginName" placeholder="请输入姓名" value="张明" style="width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px 16px;font-size:0.95rem;">
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:#475569;margin-bottom:6px;">密码</label>
+            <input type="password" id="loginPassword" placeholder="请输入密码" value="admin123" style="width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px 16px;font-size:0.95rem;">
         </div>
-        <button onclick="doLogin()" style="width:100%;padding:14px;background:#1e3a5f;color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;">
+        <button id="loginBtn" onclick="doLogin()" style="width:100%;padding:14px;background:#1e3a5f;color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;">
             <i class="fas fa-sign-in-alt mr-2"></i>进入系统
         </button>
         <p style="text-align:center;margin-top:14px;font-size:0.75rem;color:#94a3b8;">
-            <i class="fas fa-info-circle mr-1"></i>演示环境 · 无需密码 · 角色控制UI展示
+            <i class="fas fa-info-circle mr-1"></i>管理员: admin / admin123
         </p>
+        <p id="jsStatus" style="text-align:center;margin-top:6px;font-size:0.7rem;color:#94a3b8;">⏳ 加载中...</p>
     </div>
 </div>
 
@@ -169,18 +162,14 @@
                 <i class="fas fa-shield-alt text-amber-500 text-lg"></i>
             </div>
             <div>
-                <h1 class="font-bold text-base lg:text-lg tracking-wide">关务AEO认证稽核系统</h1>
+                <h1 class="font-bold text-base lg:text-lg tracking-wide">AEO海关认证管理系统</h1>
                 <p class="text-[10px] lg:text-xs text-slate-400">Trade Compliance Management System</p>
             </div>
         </div>
         <div class="h-6 w-px bg-white/20 hidden lg:block"></div>
         <div class="items-center space-x-3 hidden lg:flex">
-            <span class="text-xs text-slate-300">法人主体:</span>
-            <select id="legalEntitySelect" class="bg-slate-800/50 border border-slate-600 rounded px-2 py-1 text-xs focus:outline-none focus:border-amber-500 text-white" onchange="switchEntity()">
-                <option value="entity1">集团总部 - 上海XX进出口有限公司</option>
-                <option value="entity2">深圳分公司 - 华南物流中心</option>
-                <option value="entity3">宁波子公司 - 宁波XX贸易有限公司</option>
-            </select>
+            <span class="text-xs text-slate-300">企业:</span>
+            <span class="text-xs text-white font-medium" id="headerCompanyName">上海XX进出口有限公司</span>
         </div>
     </div>
     <div class="flex items-center space-x-3 lg:space-x-4">
@@ -240,6 +229,27 @@
 
 <!-- 模块1: 系统首页 -->
 <div id="dashboard" class="module-content active">
+    <!-- 首次使用引导 -->
+    <div id="firstTimeGuide" class="hidden mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+        <div class="flex items-start justify-between">
+            <div class="flex items-start space-x-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-rocket text-blue-600"></i></div>
+                <div>
+                    <h4 class="text-sm font-bold text-blue-900">欢迎使用AEO海关认证管理系统</h4>
+                    <p class="text-xs text-blue-700 mt-1">系统已为您预置了示例数据。建议按以下步骤开始使用：</p>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <button onclick="navigateTo('enterprise')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"><i class="fas fa-building mr-1"></i>1. 完善企业信息</button>
+                        <button onclick="navigateTo('supplier')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"><i class="fas fa-handshake mr-1"></i>2. 维护供应商名录</button>
+                        <button onclick="navigateTo('finance')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"><i class="fas fa-calculator mr-1"></i>3. 录入财务指标</button>
+                        <button onclick="navigateTo('selfcheck')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"><i class="fas fa-list-check mr-1"></i>4. 开始标准自查</button>
+                        <button onclick="document.getElementById('firstTimeGuide').classList.add('hidden')" class="px-3 py-1 bg-white border border-blue-300 text-blue-600 rounded text-xs hover:bg-blue-50">我知道了</button>
+                    </div>
+                </div>
+            </div>
+            <button onclick="document.getElementById('firstTimeGuide').classList.add('hidden')" class="text-blue-300 hover:text-blue-500"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
     <div class="mb-6 flex justify-between items-end flex-wrap gap-2">
         <div>
             <h2 class="text-xl lg:text-2xl font-bold text-slate-800">系统概览</h2>
@@ -273,6 +283,7 @@
                 </div>
                 <p class="text-sm font-medium text-slate-600">综合合规得分</p>
                 <p class="text-xs text-slate-400 mt-1">满分100分</p>
+                <p class="text-xs text-slate-400" id="assessmentYearBadge">--</p>
             </div>
             <div class="md:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="dimension-card bg-white p-4 rounded-lg border border-slate-200">
@@ -368,25 +379,30 @@
 <div id="enterprise" class="module-content">
     <div class="mb-6 flex justify-between items-center flex-wrap gap-2">
         <div><h2 class="text-xl lg:text-2xl font-bold text-slate-800">企业介绍与BI分析</h2><p class="text-slate-500 text-sm">企业基础信息维护及进出口数据分析</p></div>
-        <button onclick="editEnterprise()" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center space-x-2" id="btnEditEnterprise"><i class="fas fa-edit"></i><span>编辑信息</span></button>
+        <div class="flex space-x-2">
+            <button onclick="showCompanySettings()" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center space-x-2" id="btnEditEnterprise"><i class="fas fa-cog"></i><span>公司信息设置</span></button>
+            <button onclick="editTradeData()" class="bg-white border border-slate-300 text-slate-600 px-4 py-2 rounded-lg text-sm hover:bg-slate-50 flex items-center space-x-2"><i class="fas fa-chart-bar"></i><span>编辑进出口数据</span></button>
+        </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div class="lg:col-span-2 card-business rounded-lg p-6">
             <h3 class="font-bold text-slate-800 mb-4">企业基本信息</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">企业名称</p><p class="font-semibold text-slate-800">上海XX进出口有限公司</p></div>
-                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">统一社会信用代码</p><p class="font-semibold text-slate-800">91310000XXXXXXXXXX</p></div>
-                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">海关注册编码</p><p class="font-semibold text-slate-800">311XXXXXXXX</p></div>
-                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">企业类型</p><p class="font-semibold text-slate-800">进出口货物收发货人</p></div>
+            <div class="grid grid-cols-2 gap-4" id="companyInfoGrid">
+                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">企业名称</p><p class="font-semibold text-slate-800" id="ci_name">上海XX进出口有限公司</p></div>
+                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">统一社会信用代码</p><p class="font-semibold text-slate-800" id="ci_creditCode">91310000XXXXXXXXXX</p></div>
+                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">海关注册编码</p><p class="font-semibold text-slate-800" id="ci_customsCode">311XXXXXXXX</p></div>
+                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">主管海关</p><p class="font-semibold text-slate-800" id="ci_customsOffice">上海海关</p></div>
+                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">企业类型</p><p class="font-semibold text-slate-800" id="ci_enterpriseType">进出口货物收发货人</p></div>
+                <div class="p-4 bg-slate-50 rounded-lg"><p class="text-xs text-slate-500 mb-1">认证等级</p><p class="font-semibold text-slate-800" id="ci_certLevel">高级认证企业（AEO）</p></div>
             </div>
             <div class="mt-6"><p class="text-xs text-slate-500 mb-2">企业简介</p><div class="p-4 bg-slate-50 rounded-lg text-sm text-slate-700 leading-relaxed" id="enterpriseDesc">本公司成立于2010年，是一家专业从事电子产品进出口的贸易企业。公司总部位于上海浦东新区，在深圳、宁波设有分支机构。2021年通过海关高级认证，成为AEO企业。公司年进出口额超过2亿美元，业务覆盖欧美、东南亚等58个国家和地区。</div></div>
         </div>
         <div class="card-business rounded-lg p-6">
             <h3 class="font-bold text-slate-800 mb-4">关键联系人</h3>
-            <div class="space-y-3">
-                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-user-tie text-blue-600"></i></div><div><p class="font-medium text-slate-800">法定代表人</p><p class="text-sm text-slate-500">王某某</p></div></div>
-                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg"><div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center"><i class="fas fa-calculator text-emerald-600"></i></div><div><p class="font-medium text-slate-800">财务负责人</p><p class="text-sm text-slate-500">李某某</p></div></div>
-                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg"><div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center"><i class="fas fa-shipping-fast text-purple-600"></i></div><div><p class="font-medium text-slate-800">关务负责人</p><p class="text-sm text-slate-500">张某某</p></div></div>
+            <div class="space-y-3" id="companyContacts">
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-user-tie text-blue-600"></i></div><div><p class="font-medium text-slate-800">法定代表人</p><p class="text-sm text-slate-500" id="ci_legalPerson">王某某</p></div></div>
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg"><div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center"><i class="fas fa-calculator text-emerald-600"></i></div><div><p class="font-medium text-slate-800">财务负责人</p><p class="text-sm text-slate-500" id="ci_financeContact">李某某</p></div></div>
+                <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg"><div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center"><i class="fas fa-shipping-fast text-purple-600"></i></div><div><p class="font-medium text-slate-800">关务负责人</p><p class="text-sm text-slate-500" id="ci_customsContact">张某某</p></div></div>
             </div>
         </div>
     </div>
@@ -396,51 +412,148 @@
             <div><canvas id="tradeChart" width="400" height="200"></canvas></div>
             <div><canvas id="countryChart" width="400" height="200"></canvas></div>
         </div>
-        <div class="grid grid-cols-4 gap-4 mt-6">
-            <div class="text-center p-4 bg-blue-50 rounded-lg"><p class="text-2xl font-bold text-blue-600">¥2.4亿</p><p class="text-xs text-slate-600">2025年进出口总额</p></div>
-            <div class="text-center p-4 bg-emerald-50 rounded-lg"><p class="text-2xl font-bold text-emerald-600">+15.3%</p><p class="text-xs text-slate-600">同比增长</p></div>
-            <div class="text-center p-4 bg-purple-50 rounded-lg"><p class="text-2xl font-bold text-purple-600">1,240</p><p class="text-xs text-slate-600">报关单数</p></div>
-            <div class="text-center p-4 bg-amber-50 rounded-lg"><p class="text-2xl font-bold text-amber-600">3.2%</p><p class="text-xs text-slate-600">查验率</p></div>
+        <div class="grid grid-cols-4 gap-4 mt-6" id="tradeStats">
+            <div class="text-center p-4 bg-blue-50 rounded-lg"><p class="text-2xl font-bold text-blue-600" id="ci_tradeAmount">--</p><p class="text-xs text-slate-600">进出口总额（最近年）</p></div>
+            <div class="text-center p-4 bg-emerald-50 rounded-lg"><p class="text-2xl font-bold text-emerald-600" id="ci_growthRate">--</p><p class="text-xs text-slate-600">同比增长</p></div>
+            <div class="text-center p-4 bg-purple-50 rounded-lg"><p class="text-2xl font-bold text-purple-600" id="ci_declCount">--</p><p class="text-xs text-slate-600">报关单数</p></div>
+            <div class="text-center p-4 bg-amber-50 rounded-lg"><p class="text-2xl font-bold text-amber-600" id="ci_inspectRate">--</p><p class="text-xs text-slate-600">查验率</p></div>
         </div>
     </div>
 </div>
 
-<!-- 模块3: 法律法规 -->
-<div id="laws" class="module-content">
-    <div class="mb-6"><h2 class="text-xl lg:text-2xl font-bold text-slate-800">法律法规库</h2><p class="text-slate-500 text-sm">链接海关总署政务公开平台，集成核心法规文件</p></div>
-    <div class="card-business rounded-lg p-6 mb-6 bg-gradient-to-r from-slate-800 to-slate-700 text-white">
-        <div class="flex items-center justify-between flex-wrap gap-3">
-            <div class="flex items-center space-x-4">
-                <div class="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center border border-white/20"><i class="fas fa-landmark text-amber-400 text-2xl"></i></div>
-                <div><h3 class="font-bold text-lg">海关总署政务公开平台</h3><p class="text-slate-300 text-sm">查看最新政策文件及公告</p></div>
-            </div>
-            <a href="http://www.customs.gov.cn/customs/302249/2480148/index.html" target="_blank" class="btn-accent px-6 py-2 rounded-lg flex items-center space-x-2"><span>访问官网</span><i class="fas fa-external-link-alt"></i></a>
+<!-- 进出口数据编辑弹窗 -->
+<div class="modal-overlay" id="tradeDataModal"><div class="modal-box p-6" style="max-width:800px;">
+    <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-line mr-2 text-blue-600"></i>进出口数据编辑</h3><button onclick="closeModal('tradeDataModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button></div>
+    <div class="space-y-4">
+        <h4 class="font-bold text-slate-700 text-sm">近3年进出口数据</h4>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs border-collapse">
+                <thead><tr class="bg-slate-100"><th class="p-2 text-left w-20">年份</th><th class="p-2 text-right">进口额</th><th class="p-2 text-right">出口额</th><th class="p-2 text-right">进出口合计</th><th class="p-2 text-left w-16">币制</th><th class="p-2 text-right w-20">报关单数</th><th class="p-2 text-right w-20">查验率(%)</th></tr></thead>
+                <tbody>
+                    <tr><td class="p-1"><input type="number" id="tdYear0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" value="2024"></td><td class="p-1"><input type="number" id="tdImp0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="进口额" step="0.01"></td><td class="p-1"><input type="number" id="tdExp0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="出口额" step="0.01"></td><td class="p-1"><input type="number" id="tdTotal0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="自动计算" step="0.01" readonly></td><td class="p-1"><select id="tdCur0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs bg-white"><option value="CNY">人民币</option><option value="USD">美元</option></select></td><td class="p-1"><input type="number" id="tdDec0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="单数" step="1"></td><td class="p-1"><input type="number" id="tdInsp0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="%" step="0.1" min="0" max="100"></td></tr>
+                    <tr><td class="p-1"><input type="number" id="tdYear1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" value="2023"></td><td class="p-1"><input type="number" id="tdImp1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="进口额" step="0.01"></td><td class="p-1"><input type="number" id="tdExp1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="出口额" step="0.01"></td><td class="p-1"><input type="number" id="tdTotal1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="自动计算" step="0.01" readonly></td><td class="p-1"><select id="tdCur1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs bg-white"><option value="CNY">人民币</option><option value="USD">美元</option></select></td><td class="p-1"><input type="number" id="tdDec1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="单数" step="1"></td><td class="p-1"><input type="number" id="tdInsp1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="%" step="0.1" min="0" max="100"></td></tr>
+                    <tr><td class="p-1"><input type="number" id="tdYear2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" value="2022"></td><td class="p-1"><input type="number" id="tdImp2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="进口额" step="0.01"></td><td class="p-1"><input type="number" id="tdExp2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="出口额" step="0.01"></td><td class="p-1"><input type="number" id="tdTotal2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="自动计算" step="0.01" readonly></td><td class="p-1"><select id="tdCur2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs bg-white"><option value="CNY">人民币</option><option value="USD">美元</option></select></td><td class="p-1"><input type="number" id="tdDec2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="单数" step="1"></td><td class="p-1"><input type="number" id="tdInsp2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs text-right" placeholder="%" step="0.1" min="0" max="100"></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div><p class="text-xs text-slate-400">提示：修改进口额或出口额后，合计自动计算；最多3年数据</p></div>
+
+        <h4 class="font-bold text-slate-700 text-sm mt-4">核心贸易国家/地区 (Top 5)</h4>
+        <div class="grid grid-cols-5 gap-3" id="countryEditor">
+            <div><label class="block text-xs text-slate-500 mb-1">国家/地区</label><input type="text" id="ctName0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="名称"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">占比(%)</label><input type="number" id="ctPct0" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="%" min="0" max="100" step="1"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">国家/地区</label><input type="text" id="ctName1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="名称"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">占比(%)</label><input type="number" id="ctPct1" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="%" min="0" max="100" step="1"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">国家/地区</label><input type="text" id="ctName2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="名称"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">占比(%)</label><input type="number" id="ctPct2" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="%" min="0" max="100" step="1"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">国家/地区</label><input type="text" id="ctName3" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="名称"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">占比(%)</label><input type="number" id="ctPct3" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="%" min="0" max="100" step="1"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">国家/地区</label><input type="text" id="ctName4" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="名称"></div>
+            <div><label class="block text-xs text-slate-500 mb-1">占比(%)</label><input type="number" id="ctPct4" class="w-full border border-slate-300 rounded px-2 py-1.5 text-xs" placeholder="%" min="0" max="100" step="1"></div>
         </div>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-4">
-            <div class="flex items-center justify-between mb-4"><h3 class="font-bold text-slate-800"><i class="fas fa-star text-amber-500 mr-2"></i>核心法规文件</h3><span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">系统预置</span></div>
-            <div class="card-business rounded-lg p-5 border-l-4 border-red-500">
-                <div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center space-x-2 mb-2"><h4 class="font-bold text-slate-800">海关总署令第282号</h4><span class="status-badge bg-red-100 text-red-700 border border-red-200">核心</span></div><p class="text-sm text-slate-600 mb-3">《中华人民共和国海关注册登记和备案企业信用管理办法》</p><div class="flex items-center space-x-4 text-xs text-slate-500"><span><i class="far fa-calendar mr-1"></i>2026-01-13 公布</span><span><i class="far fa-calendar-check mr-1"></i>2026-04-01 施行</span><span class="text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>现行有效</span></div></div><button onclick="viewLawDetail('282')" class="p-2 text-slate-400 hover:text-slate-600"><i class="fas fa-eye"></i></button></div>
-            </div>
-            <div class="card-business rounded-lg p-5 border-l-4 border-blue-500">
-                <div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center space-x-2 mb-2"><h4 class="font-bold text-slate-800">海关总署公告2026年第34号</h4><span class="status-badge bg-blue-100 text-blue-700 border border-blue-200">标准</span></div><p class="text-sm text-slate-600 mb-3">关于公布《海关高级认证企业标准》《海关认证企业标准》的公告</p><div class="flex items-center space-x-4 text-xs text-slate-500"><span><i class="far fa-calendar mr-1"></i>2026-03-30 发布</span><span class="text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>现行有效</span></div></div><button class="p-2 text-slate-400 hover:text-slate-600"><i class="fas fa-eye"></i></button></div>
-            </div>
-            <div class="card-business rounded-lg p-5 border-l-4 border-amber-500">
-                <div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center space-x-2 mb-2"><h4 class="font-bold text-slate-800">海关总署公告2026年第35号</h4><span class="status-badge bg-amber-100 text-amber-700 border border-amber-200">复核</span></div><p class="text-sm text-slate-600 mb-3">关于实施高级认证企业简易复核的公告</p><div class="flex items-center space-x-4 text-xs text-slate-500"><span><i class="far fa-calendar mr-1"></i>2026-03-30 发布</span><span class="text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>现行有效</span></div></div><button class="p-2 text-slate-400 hover:text-slate-600"><i class="fas fa-eye"></i></button></div>
+    <div class="modal-footer mt-6"><button onclick="closeModal('tradeDataModal')" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button><button onclick="saveTradeData()" class="btn-primary px-6 py-2 rounded-lg text-sm"><i class="fas fa-save mr-1"></i>保存数据</button></div>
+</div></div>
+
+<!-- 模块3: 法律法规 -->
+<div id="laws" class="module-content">
+    <div class="mb-4"><h2 class="text-xl lg:text-2xl font-bold text-slate-800">法律法规库</h2><p class="text-slate-500 text-sm">海关核心法规 + 企业导入制度与宣讲记录</p></div>
+    <!-- 选项卡 -->
+    <div class="flex space-x-1 mb-4 border-b border-slate-200">
+        <button id="lawTabBuiltin" class="px-4 py-2 text-sm font-medium border-b-2 border-slate-800 text-slate-800" onclick="switchLawView('builtin')">核心法规</button>
+        <button id="lawTabCustom" class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600" onclick="switchLawView('custom')">企业导入</button>
+    </div>
+    <!-- 系统预置法规 -->
+    <div id="lawBuiltinView">
+        <div class="card-business rounded-lg p-6 mb-6 bg-gradient-to-r from-slate-800 to-slate-700 text-white">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center border border-white/20"><i class="fas fa-landmark text-amber-400 text-2xl"></i></div>
+                    <div><h3 class="font-bold text-lg">海关总署政务公开平台</h3><p class="text-slate-300 text-sm">查看最新政策文件及公告</p></div>
+                </div>
+                <a href="http://www.customs.gov.cn/customs/302249/2480148/index.html" target="_blank" class="btn-accent px-6 py-2 rounded-lg flex items-center space-x-2"><span>访问官网</span><i class="fas fa-external-link-alt"></i></a>
             </div>
         </div>
-        <div class="space-y-4">
-            <div class="card-business rounded-lg p-4"><h4 class="font-bold text-slate-800 mb-3 text-sm">外部链接</h4>
-                <div class="space-y-2">
-                    <a href="http://www.customs.gov.cn/customs/302249/2480148/index.html" target="_blank" class="flex items-center p-3 bg-slate-50 rounded-lg"><i class="fas fa-external-link-alt text-slate-400 mr-3"></i><span class="text-sm font-medium text-slate-700">海关总署政务公开</span></a>
-                    <a href="http://www.customs.gov.cn/" target="_blank" class="flex items-center p-3 bg-slate-50 rounded-lg"><i class="fas fa-home text-slate-400 mr-3"></i><span class="text-sm font-medium text-slate-700">海关总署官网</span></a>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex items-center justify-between mb-4"><h3 class="font-bold text-slate-800"><i class="fas fa-star text-amber-500 mr-2"></i>核心法规文件</h3><span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">系统预置</span></div>
+                <div class="card-business rounded-lg p-5 border-l-4 border-red-500">
+                    <div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center space-x-2 mb-2"><h4 class="font-bold text-slate-800">海关总署令第282号</h4><span class="status-badge bg-red-100 text-red-700 border border-red-200">核心</span></div><p class="text-sm text-slate-600 mb-3">《中华人民共和国海关注册登记和备案企业信用管理办法》</p><div class="flex items-center space-x-4 text-xs text-slate-500"><span><i class="far fa-calendar mr-1"></i>2026-01-13 公布</span><span><i class="far fa-calendar-check mr-1"></i>2026-04-01 施行</span><span class="text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>现行有效</span></div></div><button onclick="viewLawDetail('282')" class="p-2 text-slate-400 hover:text-slate-600"><i class="fas fa-eye"></i></button></div>
+                </div>
+                <div class="card-business rounded-lg p-5 border-l-4 border-blue-500">
+                    <div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center space-x-2 mb-2"><h4 class="font-bold text-slate-800">海关总署公告2026年第34号</h4><span class="status-badge bg-blue-100 text-blue-700 border border-blue-200">标准</span></div><p class="text-sm text-slate-600 mb-3">关于公布《海关高级认证企业标准》《海关认证企业标准》的公告</p><div class="flex items-center space-x-4 text-xs text-slate-500"><span><i class="far fa-calendar mr-1"></i>2026-03-30 发布</span><span class="text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>现行有效</span></div></div><button class="p-2 text-slate-400 hover:text-slate-600"><i class="fas fa-eye"></i></button></div>
+                </div>
+                <div class="card-business rounded-lg p-5 border-l-4 border-amber-500">
+                    <div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center space-x-2 mb-2"><h4 class="font-bold text-slate-800">海关总署公告2026年第35号</h4><span class="status-badge bg-amber-100 text-amber-700 border border-amber-200">复核</span></div><p class="text-sm text-slate-600 mb-3">关于实施高级认证企业简易复核的公告</p><div class="flex items-center space-x-4 text-xs text-slate-500"><span><i class="far fa-calendar mr-1"></i>2026-03-30 发布</span><span class="text-emerald-600 font-medium"><i class="fas fa-check-circle mr-1"></i>现行有效</span></div></div><button class="p-2 text-slate-400 hover:text-slate-600"><i class="fas fa-eye"></i></button></div>
                 </div>
             </div>
-            <div class="card-business rounded-lg p-4 bg-amber-50 border border-amber-200">
-                <h4 class="font-bold text-amber-900 mb-2 text-sm"><i class="fas fa-lightbulb text-amber-600 mr-2"></i>法规更新提示</h4>
-                <p class="text-xs text-amber-800 leading-relaxed">2026年4月1日起，海关总署令第282号正式施行，原237号令废止。请及时更新企业内部制度，确保符合新办法要求。</p>
+            <div class="space-y-4">
+                <div class="card-business rounded-lg p-4"><h4 class="font-bold text-slate-800 mb-3 text-sm">外部链接</h4>
+                    <div class="space-y-2">
+                        <a href="http://www.customs.gov.cn/customs/302249/2480148/index.html" target="_blank" class="flex items-center p-3 bg-slate-50 rounded-lg"><i class="fas fa-external-link-alt text-slate-400 mr-3"></i><span class="text-sm font-medium text-slate-700">海关总署政务公开</span></a>
+                        <a href="http://www.customs.gov.cn/" target="_blank" class="flex items-center p-3 bg-slate-50 rounded-lg"><i class="fas fa-home text-slate-400 mr-3"></i><span class="text-sm font-medium text-slate-700">海关总署官网</span></a>
+                    </div>
+                </div>
+                <div class="card-business rounded-lg p-4 bg-amber-50 border border-amber-200">
+                    <h4 class="font-bold text-amber-900 mb-2 text-sm"><i class="fas fa-lightbulb text-amber-600 mr-2"></i>法规更新提示</h4>
+                    <p class="text-xs text-amber-800 leading-relaxed">2026年4月1日起，海关总署令第282号正式施行，原237号令废止。请及时更新企业内部制度，确保符合新办法要求。</p>
+                </div>
             </div>
+        </div>
+    </div>
+    <!-- 企业导入法规 -->
+    <div id="lawCustomView" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+            <div><h3 class="font-bold text-slate-800"><i class="fas fa-upload text-blue-600 mr-2"></i>企业导入法规与海关解读</h3><p class="text-xs text-slate-500">自行上传内部制度、海关法规原文、海关解读宣讲材料</p></div>
+            <button onclick="showCustomLawModal()" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center space-x-2"><i class="fas fa-plus"></i><span>新增条目</span></button>
+        </div>
+        <div id="customLawList" class="space-y-3">
+            <div class="text-center py-12 text-slate-400"><i class="fas fa-book text-4xl mb-3"></i><p>暂无企业导入的法规条目</p><p class="text-xs mt-1">点击"新增条目"上传企业制度、法规原文或海关解读</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- 企业导入法规 编辑弹窗 -->
+<div class="modal-overlay" id="customLawModal">
+    <div class="modal-box max-w-2xl mx-auto">
+        <div class="flex justify-between items-center p-4 border-b border-slate-200">
+            <h3 class="text-lg font-bold text-slate-800" id="customLawModalTitle">新增法规条目</h3>
+            <button onclick="closeModal('customLawModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-5 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2"><label class="block text-sm font-medium text-slate-700 mb-1">法规/制度名称 <span class="text-red-500">*</span></label><input type="text" id="clTitle" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="如：企业进出口合规管理制度"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">文号</label><input type="text" id="clDocNumber" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="如：企管〔2026〕12号"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">发布机构</label><input type="text" id="clIssuer" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="如：公司合规部/海关总署"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">发布日期</label><input type="date" id="clPublishDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">生效日期</label><input type="date" id="clEffectiveDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">类别</label>
+                    <select id="clCategory" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500 bg-white">
+                        <option value="内部制度">内部制度</option><option value="海关法规">海关法规</option><option value="行业标准">行业标准</option><option value="宣讲材料">宣讲材料</option><option value="其他">其他</option>
+                    </select>
+                </div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">生效状态</label>
+                    <select id="clStatus" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500 bg-white">
+                        <option value="现行有效">现行有效</option><option value="即将生效">即将生效</option><option value="已废止">已废止</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2"><label class="block text-sm font-medium text-slate-700 mb-1">备注说明</label><textarea id="clNotes" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" rows="2" placeholder="适用范围、主要内容说明等"></textarea></div>
+            </div>
+            <!-- 附件上传区 -->
+            <div class="border-t border-slate-200 pt-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold text-sm text-slate-700"><i class="fas fa-paperclip text-blue-500 mr-1"></i>附件材料</h4>
+                    <div class="flex space-x-2">
+                        <button onclick="uploadCustomLawFile('regulation')" class="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded hover:bg-blue-100"><i class="fas fa-file-upload mr-1"></i>上传法规附件</button>
+                        <button onclick="uploadCustomLawFile('interpretation')" class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1.5 rounded hover:bg-amber-100"><i class="fas fa-headphones mr-1"></i>上传解读宣讲</button>
+                    </div>
+                </div>
+                <div id="clFileList" class="space-y-1.5"><p class="text-xs text-slate-400 py-2">暂未上传附件</p></div>
+            </div>
+        </div>
+        <div class="flex justify-end space-x-3 p-4 border-t border-slate-200 bg-slate-50 rounded-b-lg">
+            <button onclick="closeModal('customLawModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-100">取消</button>
+            <button onclick="saveCustomLaw()" class="px-6 py-2 btn-primary rounded-lg text-sm font-medium">保存</button>
         </div>
     </div>
 </div>
@@ -466,60 +579,227 @@
 
 <!-- 模块5: 合规自评 -->
 <div id="assessment" class="module-content">
-    <div class="mb-6 flex justify-between items-center"><div><h2 class="text-xl lg:text-2xl font-bold text-slate-800">AEO合规自评问卷</h2><p class="text-slate-500 text-sm">按照海关高级认证企业标准四大维度进行自我评估</p></div>
+    <div class="mb-4 flex justify-between items-center">
+        <div><h2 class="text-xl lg:text-2xl font-bold text-slate-800">AEO合规自评问卷</h2><p class="text-slate-500 text-sm">按照海关高级认证企业标准四大维度进行自我评估</p></div>
         <div class="flex items-center space-x-3">
             <span class="text-sm text-slate-500">评估类型:</span>
             <select id="assessmentType" onchange="switchAssessmentType()" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500 bg-white"><option value="advanced">高级认证企业标准</option><option value="certified">认证企业标准</option></select>
         </div>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div class="lg:col-span-3 space-y-6" id="questionnaireContainer"></div>
-        <div class="lg:col-span-1">
-            <div class="sticky top-24 space-y-4">
-                <div class="card-business rounded-lg p-4">
-                    <h4 class="font-bold text-slate-800 mb-3">评估进度</h4>
-                    <div class="space-y-3">
-                        <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-600">内部控制</span><span class="font-medium" id="progressInternal">0/8</span></div><div class="progress-bar"><div class="progress-fill" id="progressBarInternal" style="width:0%"></div></div></div>
-                        <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-600">财务状况</span><span class="font-medium" id="progressFinance">0/4</span></div><div class="progress-bar"><div class="progress-fill bg-emerald-500" id="progressBarFinance" style="width:0%"></div></div></div>
-                        <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-600">守法规范</span><span class="font-medium" id="progressCompliance">0/6</span></div><div class="progress-bar"><div class="progress-fill bg-violet-500" id="progressBarCompliance" style="width:0%"></div></div></div>
-                        <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-600">贸易安全</span><span class="font-medium" id="progressSecurity">0/8</span></div><div class="progress-bar"><div class="progress-fill bg-amber-600" id="progressBarSecurity" style="width:0%"></div></div></div>
+    <!-- 选项卡: 问卷 / 历史 -->
+    <div class="flex space-x-1 mb-4 border-b border-slate-200">
+        <button id="assessmentTabForm" class="px-4 py-2 text-sm font-medium border-b-2 border-slate-800 text-slate-800" onclick="switchAssessmentView('form')">当前问卷</button>
+        <button id="assessmentTabHistory" class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600" onclick="switchAssessmentView('history')">历史记录</button>
+    </div>
+    <!-- 问卷区 -->
+    <div id="assessmentFormView">
+        <!-- 元数据: 年度 + 人员 -->
+        <div class="card-business rounded-lg p-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">评估年度</label>
+                    <select id="assessmentYear" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500 bg-white"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">关务人员</label>
+                    <input id="assessmentOfficer" type="text" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="填写评估人姓名">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">关务复审人员</label>
+                    <input id="assessmentReviewer" type="text" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="填写复审人姓名">
+                </div>
+                <div class="flex items-end">
+                    <span class="text-xs text-slate-400 bg-slate-100 px-3 py-1.5 rounded">所有题目答完后再提交</span>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div class="lg:col-span-3 space-y-6" id="questionnaireContainer"></div>
+            <div class="lg:col-span-1">
+                <div class="sticky top-24 space-y-4">
+                    <div class="card-business rounded-lg p-4">
+                        <h4 class="font-bold text-slate-800 mb-3">评估进度</h4>
+                        <div class="space-y-3">
+                            <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-600">内部控制</span><span class="font-medium" id="progressInternal">0/8</span></div><div class="progress-bar"><div class="progress-fill" id="progressBarInternal" style="width:0%"></div></div></div>
+                            <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-600">财务状况</span><span class="font-medium" id="progressFinance">0/4</span></div><div class="progress-bar"><div class="progress-fill bg-emerald-500" id="progressBarFinance" style="width:0%"></div></div></div>
+                            <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-600">守法规范</span><span class="font-medium" id="progressCompliance">0/6</span></div><div class="progress-bar"><div class="progress-fill bg-violet-500" id="progressBarCompliance" style="width:0%"></div></div></div>
+                            <div><div class="flex justify-between text-xs mb-1"><span class="text-slate-600">贸易安全</span><span class="font-medium" id="progressSecurity">0/8</span></div><div class="progress-bar"><div class="progress-fill bg-amber-600" id="progressBarSecurity" style="width:0%"></div></div></div>
+                        </div>
                     </div>
+                    <div class="card-business rounded-lg p-4 bg-slate-800 text-white">
+                        <h4 class="font-bold mb-2">预估得分</h4>
+                        <p class="text-3xl font-bold text-amber-400 mb-1" id="estimatedScore">0</p>
+                        <p class="text-xs text-slate-400">完成所有题目后自动计算</p>
+                    </div>
+                    <button onclick="submitAssessment()" class="w-full btn-primary py-3 rounded-lg font-medium shadow-lg">提交评估结果</button>
+                    <button onclick="resetAssessment()" class="w-full py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">重置问卷</button>
                 </div>
-                <div class="card-business rounded-lg p-4 bg-slate-800 text-white">
-                    <h4 class="font-bold mb-2">预估得分</h4>
-                    <p class="text-3xl font-bold text-amber-400 mb-1" id="estimatedScore">0</p>
-                    <p class="text-xs text-slate-400">完成所有题目后自动计算</p>
+            </div>
+        </div>
+    </div>
+    <!-- 历史记录区 -->
+    <div id="assessmentHistoryView" class="hidden">
+        <div class="card-business rounded-lg p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-slate-800">历史评估记录</h3>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-slate-500">按年度筛选:</span>
+                    <select id="assessmentHistoryYearFilter" onchange="renderAssessmentHistory()" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
+                        <option value="">全部</option>
+                    </select>
                 </div>
-                <button onclick="submitAssessment()" class="w-full btn-primary py-3 rounded-lg font-medium shadow-lg">提交评估结果</button>
-                <button onclick="resetAssessment()" class="w-full py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 text-sm">重置问卷</button>
+            </div>
+            <div id="assessmentHistoryList">
+                <div class="text-center py-8 text-slate-400"><i class="fas fa-inbox text-3xl mb-2"></i><p>暂无历史评估记录</p></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 模块6: 供应商信用 -->
-<div id="supplier" class="module-content">
-    <div class="mb-6"><h2 class="text-xl lg:text-2xl font-bold text-slate-800">供应商信用查询</h2><p class="text-slate-500 text-sm">对接信用中国及海关企业信息公示平台，核验贸易伙伴资质</p></div>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div class="lg:col-span-2">
-            <div class="card-business rounded-lg p-6">
-                <div class="flex space-x-4 mb-6"><div class="flex-1"><label class="block text-sm font-medium text-slate-700 mb-2">企业名称 / 统一社会信用代码</label>
-                    <div class="flex space-x-2"><input type="text" id="supplierQuery" placeholder="请输入企业全称或18位信用代码" class="flex-1 border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-slate-500"><button onclick="querySupplier()" class="btn-primary px-6 py-2.5 rounded-lg"><i class="fas fa-search mr-1"></i>查询</button></div></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200"><div class="flex items-center space-x-3 mb-3"><div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center"><i class="fas fa-certificate text-red-600"></i></div><div><h4 class="font-bold text-slate-800">信用中国</h4><p class="text-xs text-slate-500">国家公共信用信息公示</p></div></div><a href="https://www.creditchina.gov.cn/" target="_blank" class="block w-full py-2 bg-white border border-slate-300 rounded text-center text-sm text-slate-600 hover:bg-slate-50"><i class="fas fa-external-link-alt mr-1"></i> 访问平台</a></div>
-                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200"><div class="flex items-center space-x-3 mb-3"><div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><i class="fas fa-building text-blue-600"></i></div><div><h4 class="font-bold text-slate-800">海关企业信息公示</h4><p class="text-xs text-slate-500">海关信用等级及处罚公示</p></div></div><a href="http://credit.customs.gov.cn/" target="_blank" class="block w-full py-2 bg-white border border-slate-300 rounded text-center text-sm text-slate-600 hover:bg-slate-50"><i class="fas fa-external-link-alt mr-1"></i> 访问平台</a></div>
-                </div>
-                <div id="supplierResult" class="hidden"><div class="border-t border-slate-200 pt-6"><h4 class="font-bold text-slate-800 mb-4">查询结果: <span class="text-blue-600">上海XX物流有限公司</span></h4>
-                    <div class="grid grid-cols-2 gap-4 mb-4"><div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg"><p class="text-xs text-emerald-600 mb-1">信用中国状态</p><p class="font-bold text-emerald-800"><i class="fas fa-check-circle mr-2"></i> 无失信记录</p></div><div class="p-3 bg-blue-50 border border-blue-200 rounded-lg"><p class="text-xs text-blue-600 mb-1">海关信用等级</p><p class="font-bold text-blue-800"><i class="fas fa-crown mr-2 text-amber-500"></i> 高级认证企业</p></div></div>
-                    <div class="space-y-2 text-sm"><div class="flex justify-between py-2 border-b border-slate-100"><span class="text-slate-500">统一社会信用代码</span><span class="font-medium text-slate-800">91310000XXXXXXXXXX</span></div><div class="flex justify-between py-2 border-b border-slate-100"><span class="text-slate-500">海关注册编码</span><span class="font-medium text-slate-800">312XXXXXXXX</span></div><div class="flex justify-between py-2 border-b border-slate-100"><span class="text-slate-500">认证有效期至</span><span class="font-medium text-slate-800">2028-03-31</span></div><div class="flex justify-between py-2"><span class="text-slate-500">最近处罚记录</span><span class="font-medium text-emerald-600">无 (近3年)</span></div></div></div></div>
+<!-- 模块5.5: 检查标准自查 -->
+<div id="selfcheck" class="module-content">
+    <div class="mb-4">
+        <div class="flex justify-between items-start flex-wrap gap-2">
+            <div>
+                <h2 class="text-xl lg:text-2xl font-bold text-slate-800">海关认证检查标准自查</h2>
+                <p class="text-slate-500 text-sm">逐项对照AEO 25项认证标准进行自查，记录合规状态与证据资料</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <select id="aeoCheckYear" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white" onchange="renderAeoCheck()"></select>
+                <button onclick="exportAeoCheckReport()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm hover:bg-slate-50"><i class="fas fa-file-export mr-1"></i>导出报告</button>
             </div>
         </div>
-        <div class="space-y-4">
-            <div class="card-business rounded-lg p-4"><h4 class="font-bold text-slate-800 mb-3 text-sm">查询历史</h4>
-                <div class="space-y-2"><div class="p-3 bg-slate-50 rounded border border-slate-200 text-sm"><p class="font-medium text-slate-700">深圳XX供应链有限公司</p><p class="text-xs text-slate-500 mt-1">查询时间: 2026-04-10</p><span class="inline-block mt-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">信用良好</span></div><div class="p-3 bg-slate-50 rounded border border-slate-200 text-sm"><p class="font-medium text-slate-700">宁波YY报关行</p><p class="text-xs text-slate-500 mt-1">查询时间: 2026-04-08</p><span class="inline-block mt-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">认证企业</span></div></div>
+        <!-- 总览进度 -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4" id="aeoCheckOverview"></div>
+    </div>
+    <!-- 类别选项卡 -->
+    <div class="flex space-x-1 mb-4 border-b border-slate-200 overflow-x-auto" id="aeoCheckCatTabs"></div>
+    <!-- 自查列表 -->
+    <div id="aeoCheckList" class="space-y-3"></div>
+</div>
+
+<!-- 模块6: 供应商信用（列表记录+变化监测+失信预警） -->
+<div id="supplier" class="module-content">
+    <div class="mb-4 flex justify-between items-start">
+        <div><h2 class="text-xl lg:text-2xl font-bold text-slate-800">供应商信用管理</h2><p class="text-slate-500 text-sm">维护供应商名录，逐次记录海关信用查询，自动监测等级变化，失信企业红色预警</p></div>
+        <button onclick="showSupplierModal()" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center space-x-2"><i class="fas fa-plus"></i><span>新增供应商</span></button>
+    </div>
+    <div class="flex items-center space-x-2 mb-4">
+        <div class="flex-1 max-w-sm"><input type="text" id="supplierQuery" placeholder="按企业名称或信用代码筛选..." class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-slate-500" oninput="renderSuppliers()"></div>
+        <button onclick="renderSuppliers()" class="px-3 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm border border-slate-200 hover:bg-slate-200"><i class="fas fa-search"></i></button>
+    </div>
+    <div id="supplierTableContainer" class="space-y-4"></div>
+</div>
+
+<!-- 供应商编辑弹窗 -->
+<div class="modal-overlay" id="supplierModal">
+    <div class="modal-content" style="max-width:520px"><div class="modal-header"><h3 class="text-lg font-bold text-slate-800"><i class="fas fa-building mr-2 text-slate-500"></i><span id="supplierModalTitle">新增供应商</span></h3><button onclick="closeModal('supplierModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button></div>
+        <div class="p-6 space-y-4">
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">企业名称 <span class="text-red-500">*</span></label><input type="text" id="supName" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="请输入供应商企业全称"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">统一社会信用代码 <span class="text-red-500">*</span></label><input type="text" id="supCreditCode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="18位统一信用代码" maxlength="18"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">海关注册编码</label><input type="text" id="supCustomsCode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="10位海关注册编码"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">合作业务</label><input type="text" id="supBusiness" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="如: 物流运输、报关代理、原材料供应"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">联系人</label><input type="text" id="supContact" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="供应商联系人姓名"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">联系方式</label><input type="text" id="supPhone" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="电话/手机/邮箱"></div>
+            <input type="hidden" id="supEditId">
+        </div>
+        <div class="modal-footer"><button onclick="closeModal('supplierModal')" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button><button onclick="saveSupplier()" class="btn-primary px-6 py-2 rounded-lg text-sm">保存</button></div>
+    </div>
+</div>
+
+<!-- 海关查询记录弹窗 -->
+<div class="modal-overlay" id="supQueryModal">
+    <div class="modal-content" style="max-width:560px"><div class="modal-header"><h3 class="text-lg font-bold text-slate-800"><i class="fas fa-search mr-2 text-blue-500"></i>记录海关信用查询</h3><button onclick="closeModal('supQueryModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button></div>
+        <div class="p-6 space-y-4">
+            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div><p class="text-sm font-medium text-slate-700" id="supQueryName">供应商名称</p><p class="text-xs text-slate-400 mt-0.5" id="supQueryCode">信用代码</p></div>
+                <span id="supQueryPrevLevel" class="text-xs px-2 py-1 rounded hidden"></span>
             </div>
-            <div class="card-business rounded-lg p-4 bg-amber-50 border border-amber-200"><h4 class="font-bold text-amber-900 mb-2 text-sm"><i class="fas fa-exclamation-triangle text-amber-600 mr-2"></i>贸易安全提示</h4><p class="text-xs text-amber-800 leading-relaxed">根据AEO认证标准，企业需定期评估商业伙伴的安全情况。建议每季度对关键供应商进行信用复查。</p></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-sm font-medium text-slate-700 mb-1.5">查询日期 <span class="text-red-500">*</span></label><input type="date" id="supQueryDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1.5">认证有效期至</label><input type="date" id="supQueryValid" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500"></div>
+            </div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">海关信用等级 <span class="text-red-500">*</span></label>
+                <select id="supQueryLevel" onchange="onQueryLevelChange()" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500 bg-white">
+                    <option value="">请选择</option>
+                    <option value="高级认证企业（AEO）">高级认证企业（AEO）</option>
+                    <option value="认证企业">认证企业</option>
+                    <option value="一般信用企业">一般信用企业</option>
+                    <option value="失信企业" class="text-red-600 font-medium">⚠️ 失信企业</option>
+                    <option value="未查询到">未查询到</option>
+                </select>
+            </div>
+            <div id="supQueryChangeIndicator" class="hidden text-xs px-3 py-2 rounded-lg"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">信用中国状态</label>
+                <select id="supQueryCreditStatus" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500 bg-white">
+                    <option value="无失信记录">无失信记录</option>
+                    <option value="有失信记录">有失信记录</option>
+                </select>
+            </div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1.5">查询备注</label><textarea id="supQueryNotes" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" rows="2" placeholder="其他需要记录的信息"></textarea></div>
+            <input type="hidden" id="supQuerySupplierId">
+        </div>
+        <div class="modal-footer"><button onclick="closeModal('supQueryModal')" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800">取消</button><button onclick="saveSupplierQuery()" class="btn-primary px-6 py-2 rounded-lg text-sm">保存记录</button></div>
+    </div>
+</div>
+
+<!-- 模块6.5: 财务指标管理（年度列表版） -->
+<div id="finance" class="module-content">
+    <div class="mb-4 flex justify-between items-start">
+        <div><h2 class="text-xl lg:text-2xl font-bold text-slate-800">财务指标管理</h2><p class="text-slate-500 text-sm">按年度录入财务指标，自动评估达标情况，记录填写人员与审计报告</p></div>
+        <button onclick="addFinanceYear()" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center space-x-2"><i class="fas fa-plus"></i><span>新增年度</span></button>
+    </div>
+    <!-- 年度选项卡 -->
+    <div class="flex space-x-1 mb-4 border-b border-slate-200 overflow-x-auto" id="financeYearTabs"></div>
+    <!-- 未选择年度时的提示 -->
+    <div id="financeNoData" class="hidden text-center py-16 text-slate-400"><i class="fas fa-calculator text-5xl mb-4"></i><p>暂无财务数据</p><p class="text-xs mt-1">点击"新增年度"开始录入</p></div>
+    <!-- 年度数据编辑区 -->
+    <div id="financeYearPanel" class="hidden">
+        <!-- 合规状态总览 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4" id="financeComplianceSummary"></div>
+        <!-- 指标数据表格 -->
+        <div class="card-business rounded-lg overflow-hidden mb-4" style="overflow-x:auto;">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-slate-800 text-white">
+                        <th class="px-3 py-3 text-left font-medium text-xs">指标名称</th>
+                        <th class="px-3 py-3 text-center font-medium text-xs">标准值</th>
+                        <th class="px-3 py-3 text-center font-medium text-xs">年度值</th>
+                        <th class="px-3 py-3 text-center font-medium text-xs">单位</th>
+                        <th class="px-3 py-3 text-center font-medium text-xs">是否达标</th>
+                    </tr>
+                </thead>
+                <tbody id="financeDataBody"></tbody>
+            </table>
+        </div>
+        <!-- 填写信息 -->
+        <div class="card-business rounded-lg p-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">填写人员</label>
+                    <input type="text" id="finRecordedBy" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="填写人姓名">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">填写日期</label>
+                    <input type="date" id="finRecordedAt" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-500 mb-1">财务负责人</label>
+                    <input type="text" id="finOfficer" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="财务负责人姓名">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="saveFinanceYear()" class="w-full btn-primary py-2.5 rounded-lg text-sm font-medium"><i class="fas fa-save mr-1"></i>保存本年度数据</button>
+                </div>
+            </div>
+        </div>
+        <!-- 审计报告 -->
+        <div class="card-business rounded-lg p-4">
+            <h4 class="font-bold text-slate-800 mb-3 flex items-center"><i class="fas fa-file-pdf text-red-500 mr-2"></i>审计报告上传 <span class="text-xs text-slate-400 ml-2">（按年度归档）</span></h4>
+            <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center hover:border-blue-400 cursor-pointer transition-all mb-3" onclick="uploadFinanceReport()">
+                <i class="fas fa-cloud-upload-alt text-xl text-slate-400 mb-1"></i>
+                <p class="text-sm text-slate-500">点击上传年度审计报告（PDF）</p>
+            </div>
+            <div id="financeReportList" class="space-y-2"></div>
         </div>
     </div>
 </div>
@@ -586,30 +866,121 @@
 
 <!-- 模块8: 内部审计 -->
 <div id="audit" class="module-content">
-    <div class="mb-6"><h2 class="text-xl lg:text-2xl font-bold text-slate-800">内部审计管理</h2><p class="text-slate-500 text-sm">区分进出口审计与持续性符合审计</p></div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="card-business rounded-lg p-6"><div class="flex items-center justify-between mb-4"><h3 class="font-bold text-slate-800"><i class="fas fa-file-import text-blue-600 mr-2"></i>进出口业务审计</h3><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">对接模块一数据</span></div>
-            <div class="space-y-4">
-                <div class="p-4 border border-slate-200 rounded-lg"><div class="flex justify-between items-start mb-2"><h4 class="font-semibold text-slate-800">2026年第一季度进出口合规审计</h4><span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs">已完成</span></div><p class="text-sm text-slate-500 mb-2">审计期间: 2026-01-01 至 2026-03-31</p><div class="flex items-center space-x-4 text-xs text-slate-400"><span>报关单数: 312笔</span><span>异常单证: 0笔</span><span>合规率: 100%</span></div></div>
-                <div class="p-4 border border-slate-200 rounded-lg"><div class="flex justify-between items-start mb-2"><h4 class="font-semibold text-slate-800">2025年第四季度进出口合规审计</h4><span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs">已完成</span></div><p class="text-sm text-slate-500 mb-2">审计期间: 2025-10-01 至 2025-12-31</p><div class="flex items-center space-x-4 text-xs text-slate-400"><span>报关单数: 298笔</span><span>异常单证: 2笔</span><span>合规率: 99.3%</span></div></div>
-            </div>
-            <button class="w-full mt-4 py-2 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 hover:border-blue-400 hover:text-blue-600 transition-colors"><i class="fas fa-plus mr-1"></i>新建进出口审计</button>
-        </div>
-        <div class="card-business rounded-lg p-6"><div class="flex items-center justify-between mb-4"><h3 class="font-bold text-slate-800"><i class="fas fa-sync-alt text-purple-600 mr-2"></i>持续性符合审计</h3><span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs">年度/专项</span></div>
-            <div class="space-y-4">
-                <div class="p-4 border border-slate-200 rounded-lg"><div class="flex justify-between items-start mb-2"><h4 class="font-semibold text-slate-800">AEO标准持续性符合专项审计</h4><span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs">进行中</span></div><p class="text-sm text-slate-500 mb-2">审计范围: 内部控制、贸易安全、财务状况</p><div class="w-full bg-slate-200 rounded-full h-2 mb-2"><div class="bg-purple-600 h-2 rounded-full" style="width:65%"></div></div><div class="flex justify-between text-xs text-slate-400"><span>进度: 65%</span><span>预计完成: 2026-06-30</span></div></div>
-                <div class="p-4 border border-slate-200 rounded-lg"><div class="flex justify-between items-start mb-2"><h4 class="font-semibold text-slate-800">2025年度全面符合性审计</h4><span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs">已完成</span></div><p class="text-sm text-slate-500 mb-2">审计结论: 符合高级认证企业标准要求</p><div class="flex items-center space-x-4 text-xs text-slate-400"><span>审计人员: 外部事务所</span><span>报告编号: AUD-2025-001</span></div></div>
-            </div>
-            <button class="w-full mt-4 py-2 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 hover:border-purple-400 hover:text-purple-600 transition-colors"><i class="fas fa-plus mr-1"></i>新建持续性审计</button>
+    <div class="mb-4 flex justify-between items-start">
+        <div><h2 class="text-xl lg:text-2xl font-bold text-slate-800">内部审计管理</h2><p class="text-slate-500 text-sm">按年度管理审计活动，记录负责人、成员、结论与问题改善</p></div>
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleAuditView()" class="px-3 py-2 rounded-lg text-sm border border-slate-300 hover:bg-slate-50 flex items-center space-x-1" id="auditViewToggle"><i class="fas fa-tasks"></i><span>问题改善跟踪</span></button>
+            <button onclick="showAuditModal()" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center space-x-2"><i class="fas fa-plus"></i><span>新建审计活动</span></button>
         </div>
     </div>
-    <div class="card-business rounded-lg p-6">
-        <h3 class="font-bold text-slate-800 mb-4">审计发现问题跟踪</h3>
-        <div style="overflow-x:auto;">
-            <table class="w-full text-left text-sm"><thead class="bg-slate-50 border-b border-slate-200"><tr><th class="px-6 py-3 font-semibold text-slate-700">问题编号</th><th class="px-6 py-3 font-semibold text-slate-700">关联审计</th><th class="px-6 py-3 font-semibold text-slate-700">问题描述</th><th class="px-6 py-3 font-semibold text-slate-700">责任部门</th><th class="px-6 py-3 font-semibold text-slate-700">整改期限</th><th class="px-6 py-3 font-semibold text-slate-700">状态</th></tr></thead><tbody class="divide-y divide-slate-100">
-                <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium">ISS-2026-001</td><td class="px-6 py-3 text-slate-600">2025Q4进出口审计</td><td class="px-6 py-3 text-slate-700">单证归档不及时</td><td class="px-6 py-3">业务一部</td><td class="px-6 py-3 text-slate-500">2026-02-28</td><td class="px-6 py-3"><span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs">已整改</span></td></tr>
-                <tr class="hover:bg-slate-50"><td class="px-6 py-3 font-medium">ISS-2026-002</td><td class="px-6 py-3 text-slate-600">持续性符合审计</td><td class="px-6 py-3 text-slate-700">门禁系统记录不完整</td><td class="px-6 py-3">行政部</td><td class="px-6 py-3 text-slate-500">2026-07-15</td><td class="px-6 py-3"><span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs">整改中</span></td></tr>
-            </tbody></table>
+    <!-- 年度选项卡 -->
+    <div class="flex space-x-1 mb-4 border-b border-slate-200 overflow-x-auto" id="auditYearTabs"></div>
+    <!-- 审计列表 -->
+    <div id="auditListContainer" class="space-y-4">
+        <div class="text-center py-16 text-slate-400"><i class="fas fa-search text-5xl mb-4"></i><p>暂无审计活动</p><p class="text-xs mt-1">点击"新建审计活动"开始</p></div>
+    </div>
+</div>
+
+<!-- 审计问题改善跟踪 -->
+<div id="auditIssueTracking" class="hidden">
+    <div class="mb-4 flex justify-between items-center">
+        <div><h3 class="text-lg font-bold text-slate-800"><i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i>审计问题改善跟踪</h3><p class="text-xs text-slate-500">跨年度查看所有审计发现问题的改善情况</p></div>
+        <div class="flex items-center space-x-2">
+            <select id="trackingYearFilter" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white" onchange="renderIssueTracking()">
+                <option value="all">全部年度</option>
+            </select>
+            <select id="trackingStatusFilter" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white" onchange="renderIssueTracking()">
+                <option value="all">全部状态</option>
+                <option value="待整改">待整改</option>
+                <option value="整改中">整改中</option>
+                <option value="已整改">已整改</option>
+            </select>
+            <button onclick="toggleAuditView()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm hover:bg-slate-50"><i class="fas fa-arrow-left mr-1"></i>返回审计列表</button>
+        </div>
+    </div>
+    <div id="issueTrackingTableWrap" style="overflow-x:auto;">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-slate-800 text-white">
+                    <th class="px-3 py-2.5 text-left font-medium text-xs">问题描述</th>
+                    <th class="px-3 py-2.5 text-left font-medium text-xs">所属审计</th>
+                    <th class="px-3 py-2.5 text-left font-medium text-xs">年度</th>
+                    <th class="px-3 py-2.5 text-left font-medium text-xs">责任部门</th>
+                    <th class="px-3 py-2.5 text-center font-medium text-xs">整改期限</th>
+                    <th class="px-3 py-2.5 text-left font-medium text-xs">改善措施</th>
+                    <th class="px-3 py-2.5 text-center font-medium text-xs">当前状态</th>
+                    <th class="px-3 py-2.5 text-center font-medium text-xs">操作</th>
+                </tr>
+            </thead>
+            <tbody id="issueTrackingBody"></tbody>
+        </table>
+    </div>
+    <div id="issueTrackingEmpty" class="text-center py-16 text-slate-400 hidden">
+        <i class="fas fa-check-circle text-5xl mb-4"></i>
+        <p>暂无审计问题记录</p>
+        <p class="text-xs mt-1">在"审计活动"中记录问题后，将在此处集中跟踪改善情况</p>
+    </div>
+</div>
+
+<!-- 内部审计 编辑弹窗 -->
+<div class="modal-overlay" id="auditModal">
+    <div class="modal-box max-w-3xl mx-auto">
+        <div class="flex justify-between items-center p-4 border-b border-slate-200">
+            <h3 class="text-lg font-bold text-slate-800" id="auditModalTitle">新建审计活动</h3>
+            <button onclick="closeModal('auditModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2"><label class="block text-sm font-medium text-slate-700 mb-1">审计标题 <span class="text-red-500">*</span></label><input type="text" id="auditTitle" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="如: 2026年第一季度进出口合规审计"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">审计类型 <span class="text-red-500">*</span></label>
+                    <select id="auditType" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-slate-500">
+                        <option value="进出口审计">进出口审计</option>
+                        <option value="持续性符合审计">持续性符合审计</option>
+                        <option value="专项审计">专项审计</option>
+                    </select>
+                </div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">审计年度 <span class="text-red-500">*</span></label>
+                    <select id="auditYear" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-slate-500"></select>
+                </div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">开始日期 <span class="text-red-500">*</span></label><input type="date" id="auditStartDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">结束日期</label><input type="date" id="auditEndDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">审计负责人 <span class="text-red-500">*</span></label><input type="text" id="auditLead" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="审计负责人姓名"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">审计成员</label><input type="text" id="auditMembers" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="成员姓名，逗号分隔"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">对应部门</label><input type="text" id="auditDepts" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" placeholder="如: 关务部, 财务部, 行政部"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">通知下发时间</label><input type="date" id="auditNoticeDate" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500"></div>
+                <div><label class="block text-sm font-medium text-slate-700 mb-1">当前状态</label>
+                    <select id="auditStatus" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:border-slate-500">
+                        <option value="待开始">待开始</option>
+                        <option value="进行中">进行中</option>
+                        <option value="已完成">已完成</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2"><label class="block text-sm font-medium text-slate-700 mb-1">审计结论</label><textarea id="auditConclusion" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" rows="2" placeholder="审计结论描述..."></textarea></div>
+                <div class="md:col-span-2"><label class="block text-sm font-medium text-slate-700 mb-1">备注</label><textarea id="auditNotes" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-slate-500" rows="2" placeholder="其他说明..."></textarea></div>
+            </div>
+            <!-- 审计问题 -->
+            <div class="border-t border-slate-200 pt-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold text-sm text-slate-700"><i class="fas fa-exclamation-triangle text-amber-500 mr-1"></i>审计发现问题</h4>
+                    <button onclick="addAuditIssueRow()" class="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1 rounded hover:bg-amber-100"><i class="fas fa-plus mr-1"></i>添加问题</button>
+                </div>
+                <div id="auditIssueRows" class="space-y-2"></div>
+                <p class="text-xs text-slate-400 mt-1">每个发现的问题请描述、指定责任部门、整改期限及改善措施</p>
+            </div>
+            <!-- 审计报告上传 -->
+            <div class="border-t border-slate-200 pt-4">
+                <h4 class="font-bold text-sm text-slate-700 mb-3"><i class="fas fa-file-pdf text-red-500 mr-1"></i>审计报告上传</h4>
+                <div class="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center hover:border-blue-400 cursor-pointer transition-all mb-3" onclick="uploadAuditReport()">
+                    <i class="fas fa-cloud-upload-alt text-xl text-slate-400 mb-1"></i>
+                    <p class="text-xs text-slate-500">点击上传审计报告（PDF）</p>
+                </div>
+                <div id="auditReportList" class="space-y-2"></div>
+            </div>
+            <input type="hidden" id="auditEditId">
+        </div>
+        <div class="flex justify-end space-x-3 p-4 border-t border-slate-200 bg-slate-50 rounded-b-lg">
+            <button onclick="closeModal('auditModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-100">取消</button>
+            <button onclick="saveAudit()" class="px-6 py-2 btn-primary rounded-lg text-sm font-medium">保存审计活动</button>
         </div>
     </div>
 </div>
@@ -628,25 +999,6 @@
         <div class="card-business rounded-lg p-4 cursor-pointer hover:shadow-md border-2 border-transparent hover:border-emerald-300" onclick="filterDocs('trade')"><div class="flex items-center justify-between mb-2"><i class="fas fa-shield-alt text-emerald-600 text-2xl"></i><span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs">8份</span></div><h4 class="font-semibold text-slate-800">贸易安全制度</h4><p class="text-xs text-slate-500 mt-1">场所安全、人员安全、货物安全</p></div>
         <div class="card-business rounded-lg p-4 cursor-pointer hover:shadow-md border-2 border-transparent hover:border-purple-300" onclick="filterDocs('finance')"><div class="flex items-center justify-between mb-2"><i class="fas fa-chart-line text-purple-600 text-2xl"></i><span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">6份</span></div><h4 class="font-semibold text-slate-800">财务指标档案</h4><p class="text-xs text-slate-500 mt-1">偿债能力、盈利能力指标</p></div>
         <div class="card-business rounded-lg p-4 cursor-pointer hover:shadow-md border-2 border-transparent hover:border-amber-300" onclick="filterDocs('training')"><div class="flex items-center justify-between mb-2"><i class="fas fa-graduation-cap text-amber-600 text-2xl"></i><span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs">15份</span></div><h4 class="font-semibold text-slate-800">培训记录档案</h4><p class="text-xs text-slate-500 mt-1">培训计划、签到表、考核记录</p></div>
-    </div>
-    <div class="card-business rounded-lg p-6">
-        <div class="flex items-center justify-between mb-4 flex-wrap gap-2"><h3 class="font-bold text-slate-800"><i class="fas fa-calculator text-purple-600 mr-2"></i>财务指标录入 (2026年Q2)</h3><button onclick="saveFinanceData()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 text-sm"><i class="fas fa-save mr-1"></i>保存数据</button></div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="space-y-4"><h4 class="font-medium text-slate-700 border-b pb-2">偿债能力指标 (4项)</h4>
-                <div><label class="block text-sm text-slate-600 mb-1">资产负债率 (%)</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 45.2" min="0" max="100" step="0.1"></div>
-                <div><label class="block text-sm text-slate-600 mb-1">现金比率 (%)</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 32.5" min="0" step="0.1"></div>
-                <div><label class="block text-sm text-slate-600 mb-1">经营现金流负债比</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 0.85" min="0" step="0.01"></div>
-                <div><label class="block text-sm text-slate-600 mb-1">流动比率 (%)</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 156.3" min="0" step="0.1"></div>
-            </div>
-            <div class="space-y-4"><h4 class="font-medium text-slate-700 border-b pb-2">盈利能力指标 (5项)</h4>
-                <div><label class="block text-sm text-slate-600 mb-1">净利润 (万元)</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 1250" min="0" step="0.01"></div>
-                <div><label class="block text-sm text-slate-600 mb-1">营业利润率 (%)</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 18.5" min="0" step="0.1"></div>
-                <div><label class="block text-sm text-slate-600 mb-1">毛利率 (%)</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 25.3" min="0" step="0.1"></div>
-                <div><label class="block text-sm text-slate-600 mb-1">经营性现金流 (万元)</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 890" min="0" step="0.01"></div>
-                <div><label class="block text-sm text-slate-600 mb-1">总资产报酬率 (%)</label><input type="number" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" placeholder="例: 12.4" min="0" step="0.1"></div>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-4"><h4 class="font-medium text-slate-700 mb-3">录入说明</h4><ul class="text-sm text-slate-600 space-y-2 list-disc list-inside"><li>数据来源于经审计的财务报表</li><li>生产型企业与非生产型企业资产负债率标准不同</li><li>偿债能力、盈利能力各需至少2项达标</li><li>数据将用于AEO认证财务状况评估</li></ul></div>
-        </div>
     </div>
 </div>
 
@@ -685,6 +1037,55 @@
                 <tr class="hover:bg-slate-50"><td class="px-4 py-3 font-medium">贸易安全专项培训</td><td class="px-4 py-3">物流/仓储、采购部</td><td class="px-4 py-3">2026-02-20</td><td class="px-4 py-3">35人</td><td class="px-4 py-3"><span class="text-emerald-600 font-medium">97%</span></td></tr>
                 <tr class="hover:bg-slate-50"><td class="px-4 py-3 font-medium">信息安全意识培训</td><td class="px-4 py-3">全公司</td><td class="px-4 py-3">2026-01-10</td><td class="px-4 py-3">120人</td><td class="px-4 py-3"><span class="text-emerald-600 font-medium">95%</span></td></tr>
             </tbody></table>
+        </div>
+    </div>
+</div>
+
+<!-- 模块13: 标准宣贯（培训讲解） -->
+<div id="standards-training" class="module-content">
+    <div class="mb-4">
+        <div class="flex justify-between items-start flex-wrap gap-2">
+            <div>
+                <h2 class="text-xl lg:text-2xl font-bold text-slate-800">AEO标准宣贯</h2>
+                <p class="text-slate-500 text-sm">结合海关检查重点与问题点，用于日常培训讲解及部门宣贯</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <input type="text" id="trainingSearch" placeholder="搜索标准名称/编号..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-44 focus:outline-none focus:border-slate-500" oninput="filterTrainingCards()">
+                <select id="trainingDeptFilter" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white" onchange="filterTrainingCards()">
+                    <option value="">全部部门</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="flex space-x-1 mb-4 border-b border-slate-200 overflow-x-auto" id="trainingCatTabs">
+        <button class="training-cat-tab px-4 py-2 text-sm font-medium border-b-2 border-slate-800 text-slate-800" data-cat="all" onclick="switchTrainingCat('all')">全部25项</button>
+        <button class="training-cat-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600" data-cat="internal" onclick="switchTrainingCat('internal')"><i class="fas fa-sitemap mr-1"></i>内部控制（11项）</button>
+        <button class="training-cat-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600" data-cat="finance" onclick="switchTrainingCat('finance')"><i class="fas fa-chart-line mr-1"></i>财务状况（1项）</button>
+        <button class="training-cat-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600" data-cat="compliance" onclick="switchTrainingCat('compliance')"><i class="fas fa-balance-scale mr-1"></i>守法规范（4项）</button>
+        <button class="training-cat-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600" data-cat="security" onclick="switchTrainingCat('security')"><i class="fas fa-shield-alt mr-1"></i>贸易安全（9项）</button>
+    </div>
+    <div id="trainingCardList" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+</div>
+
+<!-- 模块14: 年度资料归档 -->
+<div id="annual-archive" class="module-content">
+    <div class="mb-4">
+        <div class="flex justify-between items-start flex-wrap gap-2">
+            <div>
+                <h2 class="text-xl lg:text-2xl font-bold text-slate-800">年度资料归档</h2>
+                <p class="text-slate-500 text-sm">按年度打包整理财务/自查/审计/任务/供应商等全模块数据，生成结构化的海关备查档案</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <select id="archiveYear" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white" onchange="renderArchiveDashboard()"></select>
+                <button onclick="generateAnnualArchive()" class="btn-primary px-4 py-2 rounded-lg text-sm flex items-center space-x-2"><i class="fas fa-archive mr-1"></i><span>生成归档</span></button>
+            </div>
+        </div>
+    </div>
+    <div id="archiveDashboard" class="space-y-4"></div>
+    <div class="card-business rounded-lg p-4 mt-4">
+        <h3 class="font-bold text-slate-800 mb-4 flex items-center"><i class="fas fa-history text-slate-500 mr-2"></i>历史归档记录</h3>
+        <div id="archiveHistoryList" class="space-y-2">
+            <div class="text-center py-8 text-slate-400"><i class="fas fa-inbox text-3xl mb-2"></i><p>暂无归档记录</p></div>
         </div>
     </div>
 </div>
@@ -731,6 +1132,140 @@
     </div>
 </div>
 
+<!-- ===== 用户管理 ===== -->
+<div id="user-management" class="module-content">
+    <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+        <div><h2 class="text-xl lg:text-2xl font-bold text-slate-800"><i class="fas fa-users-cog mr-2 text-blue-600"></i>用户管理</h2><p class="text-slate-500 text-sm">系统用户账号管理 · 角色权限分配</p></div>
+        <button onclick="showCreateUserModal()" class="btn-primary px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>新建用户</button>
+    </div>
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto"><table class="w-full text-sm">
+            <thead><tr class="bg-slate-50 border-b border-slate-200">
+                <th class="text-left px-4 py-3 font-medium text-slate-600">用户名</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">显示名称</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">角色</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">部门</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">状态</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">最后登录</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">操作</th>
+            </tr></thead>
+            <tbody id="userTableBody"></tbody>
+        </table></div>
+    </div>
+    <!-- 用户表单模态框 -->
+    <div class="modal-overlay" id="userFormModal"><div class="modal-box p-6">
+        <h3 class="text-xl font-bold text-slate-800 mb-6" id="userFormTitle">新建用户</h3>
+        <div class="space-y-4">
+            <div><label class="block text-sm font-medium text-slate-700 mb-1">用户名</label><input type="text" id="ufUsername" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1">显示名称</label><input type="text" id="ufDisplayName" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1">密码</label><input type="password" id="ufPassword" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm" placeholder="新建用户时必填"></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1">角色</label>
+                <select id="ufRole" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm bg-white"></select></div>
+            <div><label class="block text-sm font-medium text-slate-700 mb-1">部门</label><input type="text" id="ufDept" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm"></div>
+        </div>
+        <div class="flex justify-end space-x-3 mt-6">
+            <button onclick="closeModal('userFormModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-50">取消</button>
+            <button onclick="saveUserForm()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">保存</button>
+        </div>
+    </div></div>
+</div>
+
+<!-- ===== 审批中心 ===== -->
+<div id="approvals" class="module-content">
+    <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+        <div><h2 class="text-xl lg:text-2xl font-bold text-slate-800"><i class="fas fa-check-double mr-2 text-violet-600"></i>审批中心</h2><p class="text-slate-500 text-sm">关键操作审批流程 · 变更申请审核</p></div>
+        <div class="flex space-x-2">
+            <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium" id="pendingApprovalBadge">待审批: 0</span>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <div class="flex space-x-1 p-3 border-b border-slate-200">
+            <button onclick="filterApprovals('pending')" class="approval-filter px-3 py-1.5 rounded-lg text-sm bg-amber-100 text-amber-700 font-medium">待审批</button>
+            <button onclick="filterApprovals('approved')" class="approval-filter px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:bg-slate-100">已通过</button>
+            <button onclick="filterApprovals('rejected')" class="approval-filter px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:bg-slate-100">已驳回</button>
+            <button onclick="filterApprovals('all')" class="approval-filter px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:bg-slate-100">全部</button>
+        </div>
+        <div class="overflow-x-auto"><table class="w-full text-sm">
+            <thead><tr class="bg-slate-50 border-b border-slate-200">
+                <th class="text-left px-4 py-3 font-medium text-slate-600">申请类型</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">内容</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">申请人</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">时间</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">状态</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">操作</th>
+            </tr></thead>
+            <tbody id="approvalTableBody"></tbody>
+        </table></div>
+    </div>
+</div>
+
+<!-- ===== 整改跟踪 ===== -->
+<div id="rectifications" class="module-content">
+    <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+        <div><h2 class="text-xl lg:text-2xl font-bold text-slate-800"><i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>整改跟踪</h2><p class="text-slate-500 text-sm">审计问题整改 · 超期预警 · 闭环管理</p></div>
+        <div class="flex space-x-2">
+            <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium" id="overdueRecBadge">超期: 0</span>
+            <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium" id="openRecBadge">进行中: 0</span>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="recStats"></div>
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <div class="p-3 border-b border-slate-200 flex flex-wrap gap-2">
+            <select id="recStatusFilter" onchange="renderRectifications()" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
+                <option value="">全部状态</option>
+                <option value="open">待处理</option>
+                <option value="in_progress">处理中</option>
+                <option value="resolved">已解决</option>
+                <option value="closed">已关闭</option>
+            </select>
+            <select id="recSeverityFilter" onchange="renderRectifications()" class="border border-slate-300 rounded px-3 py-1.5 text-sm bg-white">
+                <option value="">全部严重程度</option>
+                <option value="high">高</option>
+                <option value="medium">中</option>
+                <option value="low">低</option>
+            </select>
+            <button onclick="showCreateRectificationModal()" class="ml-auto px-4 py-2 bg-blue-600 text-white rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>新建整改项</button>
+        </div>
+        <div class="overflow-x-auto"><table class="w-full text-sm">
+            <thead><tr class="bg-slate-50 border-b border-slate-200">
+                <th class="text-left px-4 py-3 font-medium text-slate-600">问题描述</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">来源</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">严重程度</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">负责人</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">截止日期</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">状态</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-600">操作</th>
+            </tr></thead>
+            <tbody id="recTableBody"></tbody>
+        </table></div>
+    </div>
+</div>
+
+<!-- ===== 系统设置 ===== -->
+<div id="system-settings" class="module-content">
+    <div class="mb-6"><h2 class="text-xl lg:text-2xl font-bold text-slate-800"><i class="fas fa-cog mr-2 text-slate-600"></i>系统设置</h2><p class="text-slate-500 text-sm">系统监控 · 数据管理 · 安全配置</p></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="sysHealthCards"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg border border-slate-200 p-5">
+            <h3 class="font-bold text-slate-800 mb-4"><i class="fas fa-database mr-2 text-blue-600"></i>数据管理</h3>
+            <div class="space-y-3">
+                <button onclick="manualBackup()" class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg hover:bg-blue-50 transition-colors text-sm"><span><i class="fas fa-save mr-2 text-blue-600"></i>手动备份数据库</span><span class="text-blue-600">&rarr;</span></button>
+                <button onclick="showDataVersions()" class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg hover:bg-blue-50 transition-colors text-sm"><span><i class="fas fa-history mr-2 text-violet-600"></i>数据版本历史</span><span class="text-violet-600">&rarr;</span></button>
+                <button onclick="openImportModal()" class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg hover:bg-blue-50 transition-colors text-sm"><span><i class="fas fa-file-import mr-2 text-emerald-600"></i>导入/导出数据</span><span class="text-emerald-600">&rarr;</span></button>
+                <button onclick="resetAllData()" class="w-full flex items-center justify-between px-4 py-3 bg-slate-50 rounded-lg hover:bg-red-50 transition-colors text-sm"><span><i class="fas fa-trash mr-2 text-red-600"></i>重置所有数据</span><span class="text-red-600">&rarr;</span></button>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg border border-slate-200 p-5">
+            <h3 class="font-bold text-slate-800 mb-4"><i class="fas fa-shield-alt mr-2 text-emerald-600"></i>安全状态</h3>
+            <div class="space-y-3 text-sm" id="sysSecurityInfo"></div>
+        </div>
+    </div>
+    <div class="mt-6 bg-white rounded-lg border border-slate-200 p-5">
+        <h3 class="font-bold text-slate-800 mb-4"><i class="fas fa-chart-bar mr-2 text-amber-600"></i>最近活动</h3>
+        <div id="sysRecentActivity" class="space-y-2 max-h-60 overflow-y-auto"></div>
+    </div>
+</div>
+
 </main>
 
 <!-- ===== 审计日志模态框 ===== -->
@@ -744,14 +1279,19 @@
 <div class="modal-overlay" id="scoreModal"><div class="modal-box p-6">
     <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-bold text-slate-800"><i class="fas fa-calculator mr-2"></i>合规健康度评分说明</h3><button onclick="closeModal('scoreModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button></div>
     <div class="space-y-6">
-        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200"><h4 class="font-bold text-slate-800 mb-3">评分计算公式</h4>
-            <div class="text-sm text-slate-600 space-y-2"><p><span class="font-medium">综合得分</span> = 自评得分 × 40% + 任务完成率 × 35% + 审计结果 × 25%</p>
-                <ul class="list-disc list-inside space-y-1"><li>自评得分 — 来自合规自评问卷完成情况</li><li>任务完成率 — 已完成任务数 / 总任务数</li><li>审计结果 — 最近一次审计合规率</li></ul></div>
+        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200"><h4 class="font-bold text-slate-800 mb-3">评分计算公式 <span class="text-xs font-normal text-slate-500 ml-2">拖拽滑块自定义权重</span></h4>
+            <div class="text-sm text-slate-600 space-y-3" id="weightConfig">
+                <div><label class="flex justify-between"><span class="font-medium">自评得分权重</span><span class="text-blue-700 font-bold" id="wLabelAssess">40%</span></label><input type="range" min="0" max="100" value="40" id="wAssess" oninput="updateWeightPreview()" class="w-full accent-blue-600"></div>
+                <div><label class="flex justify-between"><span class="font-medium">任务完成率权重</span><span class="text-emerald-700 font-bold" id="wLabelTasks">35%</span></label><input type="range" min="0" max="100" value="35" id="wTasks" oninput="updateWeightPreview()" class="w-full accent-emerald-600"></div>
+                <div><label class="flex justify-between"><span class="font-medium">审计结果权重</span><span class="text-violet-700 font-bold" id="wLabelAudit">25%</span></label><input type="range" min="0" max="100" value="25" id="wAudit" oninput="updateWeightPreview()" class="w-full accent-violet-600"></div>
+                <div class="p-2 bg-white rounded text-xs" id="weightSumMsg"><i class="fas fa-info-circle mr-1"></i>权重合计：<strong id="weightSum">100%</strong> <span id="weightSumStatus" class="text-emerald-600">✓ 合计为100%</span></div>
+                <button onclick="saveWeights()" class="btn-primary px-4 py-1.5 rounded text-xs shadow"><i class="fas fa-save mr-1"></i>保存权重配置</button>
+            </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="scoreBreakdown">
-            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200"><p class="text-xs text-blue-600 font-medium">自评得分</p><p class="text-2xl font-bold text-blue-800" id="sbAssessment">--</p><p class="text-xs text-blue-500">权重 40%</p></div>
-            <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-200"><p class="text-xs text-emerald-600 font-medium">任务完成率</p><p class="text-2xl font-bold text-emerald-800" id="sbTasks">--</p><p class="text-xs text-emerald-500">权重 35%</p></div>
-            <div class="p-4 bg-violet-50 rounded-lg border border-violet-200"><p class="text-xs text-violet-600 font-medium">审计合规率</p><p class="text-2xl font-bold text-violet-800" id="sbAudit">--</p><p class="text-xs text-violet-500">权重 25%</p></div>
+            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200"><p class="text-xs text-blue-600 font-medium">自评得分</p><p class="text-2xl font-bold text-blue-800" id="sbAssessment">--</p><p class="text-xs text-blue-500">权重 <span id="sbWAssess">40</span>%</p></div>
+            <div class="p-4 bg-emerald-50 rounded-lg border border-emerald-200"><p class="text-xs text-emerald-600 font-medium">任务完成率</p><p class="text-2xl font-bold text-emerald-800" id="sbTasks">--</p><p class="text-xs text-emerald-500">权重 <span id="sbWTasks">35</span>%</p></div>
+            <div class="p-4 bg-violet-50 rounded-lg border border-violet-200"><p class="text-xs text-violet-600 font-medium">审计合规率</p><p class="text-2xl font-bold text-violet-800" id="sbAudit">--</p><p class="text-xs text-violet-500">权重 <span id="sbWAudit">25</span>%</p></div>
         </div>
         <div class="p-4 bg-amber-50 rounded-lg border border-amber-200"><p class="text-sm text-amber-800"><i class="fas fa-lightbulb mr-1"></i>提示：各维度互评 >= 80分、任务完成率 >= 90%、审计合规率 100% 为高级认证企业标杆标准。</p></div>
     </div>
@@ -778,6 +1318,41 @@
             <button onclick="exportData('csv')" class="flex-1 py-3 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-50"><i class="fas fa-file-csv mr-1"></i>导出CSV</button>
             <button onclick="resetAllData()" class="flex-1 py-3 border border-red-300 rounded-lg text-sm text-red-600 hover:bg-red-50"><i class="fas fa-trash-alt mr-1"></i>重置数据</button>
         </div>
+        <div class="border-t border-slate-200 pt-4 mt-2">
+            <h4 class="font-bold text-slate-800 text-sm mb-3"><i class="fas fa-shield-alt text-emerald-600 mr-1"></i>系统维护</h4>
+            <div class="flex gap-3 mb-3">
+                <button onclick="triggerBackup()" class="flex-1 py-3 border border-emerald-300 rounded-lg text-sm text-emerald-700 hover:bg-emerald-50"><i class="fas fa-database mr-1"></i>手动备份</button>
+                <button onclick="showSystemHealth()" class="flex-1 py-3 border border-blue-300 rounded-lg text-sm text-blue-700 hover:bg-blue-50"><i class="fas fa-heartbeat mr-1"></i>系统状态</button>
+            </div>
+            <div id="systemHealthPanel" class="hidden p-3 bg-slate-50 rounded-lg text-xs text-slate-600 space-y-1"></div>
+        </div>
+    </div>
+</div></div>
+
+<!-- ===== 公司信息设置模态框 ===== -->
+<div class="modal-overlay" id="companySettingsModal"><div class="modal-box p-6" style="max-width:840px;">
+    <div class="flex items-center justify-between mb-6"><h3 class="text-xl font-bold text-slate-800"><i class="fas fa-cog mr-2"></i>公司信息设置</h3><button onclick="closeModal('companySettingsModal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button></div>
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">企业名称</label><input type="text" id="cs_name" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">统一社会信用代码</label><input type="text" id="cs_creditCode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">海关注册编码</label><input type="text" id="cs_customsCode" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">主管海关</label><input type="text" id="cs_customsOffice" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">企业类型</label><input type="text" id="cs_enterpriseType" value="进出口货物收发货人" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">认证等级</label><input type="text" id="cs_certLevel" value="高级认证企业（AEO）" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-4 mb-6">
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">法定代表人</label><input type="text" id="cs_legalPerson" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">财务负责人</label><input type="text" id="cs_financeContact" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-1">关务负责人</label><input type="text" id="cs_customsContact" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></div>
+    </div>
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-slate-700 mb-1">企业简介</label>
+        <textarea id="cs_desc" rows="3" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500"></textarea>
+    </div>
+    <div class="p-3 bg-blue-50 rounded-lg mb-6 text-xs text-blue-700"><i class="fas fa-info-circle mr-1"></i>进出口数据（进口额/出口额/核心国家等）请在企业介绍页点击"编辑进出口数据"录入，系统将自动生成BI图表。</div>
+    <div class="flex justify-end gap-3 border-t border-slate-200 pt-4">
+        <button onclick="closeModal('companySettingsModal')" class="px-6 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-50">取消</button>
+        <button onclick="saveCompanySettings()" class="btn-primary px-6 py-2 rounded-lg text-sm"><i class="fas fa-save mr-1"></i>保存</button>
     </div>
 </div></div>
 
@@ -786,1045 +1361,8 @@
 <!-- 演示水印 -->
 <div class="demo-watermark hidden" id="demoWatermark"><i class="fas fa-shield-alt mr-1"></i> 演示模式 · 非生产环境 · 数据仅供展示</div>
 
-<script>
-// ========================================================================
-// AEO认证稽核系统 v2.0 — 完整 JavaScript
-// ========================================================================
+    <script src="lib/app.js"></script>
+    <script defer src="lib/chart.js/chart.umd.min.js"></script>
 
-const DEPARTMENTS = ['关务部','财务部','法务部','行政部','物流/仓储','HR','采购部','IT部','内审部'];
-const ROLE_LABELS = { customs_officer: '关务经理', dept_lead: '部门AEO对接人', auditor: '内审员', executive: '企业高管', customs_viewer: '海关查看者' };
-
-const standardsData = {
-    advanced: {
-        // ── 南京海关AEO认证标准检查表 25项 ──
-        // 第一部分：内部控制（IC-01 ~ IC-11）
-        internal: { title: '内部控制', icon: 'sitemap', color: 'blue', items: [
-            { id: 'IC-01', name: '海关业务培训', desc: '建立并执行海关法律法规内部培训制度', dept: '关务部', supportDept: 'HR', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '培训制度+计划+记录+考核', standard: '建立并执行海关法律法规等相关规定的内部培训制度', checkFile: '企业内部培训制度（含海关法规培训内容）、海关业务培训书面文件', checkInterview: '负责培训的部门/岗位/人员/人数；培训计划/方式/内容/频次/范围/效果；近一年海关新规培训情况；过往申报差错的专题分析培训', checkSite: '', checkRandom: '企业内部培训的历史记录（纸本/电子/系统/照片/视频等）', sampleDocs: ['企业内部培训制度','企业年度培训计划','企业内部培训记录','企业内部培训试卷','企业内部培训照片','企业法人授权委托书'], checkPoints: ['培训是否包含海关法律法规、规章制度','法定代表人/高管每年参加≥2次内部培训','培训内容是否覆盖进出口相关海关业务','是否针对历史差错开展专题培训'] },
-            { id: 'IC-02', name: '内部组织架构', desc: '部门职责分工明确，指定高级管理人员负责关务', dept: '关务部', supportDept: '总经办', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '组织架构图+职责分工+高管任命', standard: '进出口业务/财务/贸易安全/内部审计等部门职责分工明确；指定高级管理人员负责关务', checkFile: '企业组织架构图、各部门职责分工文件、高级管理人员名单及职责分工', checkInterview: '各部门职责分工/管理架构/岗位设置；各部门管理人员姓名职位职责；负责关务的高管姓名职位；关务部门整体架构', checkSite: '各部门业务实际开展情况', checkRandom: '', sampleDocs: ['企业组织架构图','各部门职责分工文件','高级管理人员任命文件'], checkPoints: ['是否明确指定高级管理人员负责关务','各部门职责是否无重叠遗漏','关务部门人员配置是否合理'] },
-            { id: 'IC-03', name: '单证控制', desc: '进出口单证复核或纠错制度', dept: '关务部', supportDept: '', frequency: '每月', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '复核制度+复核记录+异常处理单', standard: '建立并执行进出口单证复核或者纠错制度', checkFile: '单证复核或纠错制度（含责任部门/工作流程/错误处置/责任追究）', checkInterview: '负责复核的部门/岗位/人员/人数；制度落实情况/发现问题如何处置；单证规范申报水平/报关单删改量/行政处罚次数', checkSite: '实际业务中的复核或纠错操作流程', checkRandom: '复核或纠错的工作记录', sampleDocs: ['进出口复核纸质草单','进出口业务管理制度','系统复核截图'], checkPoints: ['价格审核：成交价格构成、应税特许权使用费、特殊关系','归类审核：品目注释、归类决定、行政裁定等依据'] },
-            { id: 'IC-04', name: '单证保管', desc: '进出口单证归档管理，印章与证照安全', dept: '关务部', supportDept: '行政部', frequency: '每月', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '单证保管制度+归档记录+证照管理', standard: '建立符合海关要求的进出口单证管理制度，确保归档信息的及时性/完整性/准确性与安全性。妥善管理报关专用印章/海关核发证书/法律文书', checkFile: '进出口单证管理制度（归档时限/要求/流程/复核）', checkInterview: '归档管理规定/负责部门/工作流程；保管部门/岗位/人员；存放地点/方式/安全性/防火防水防盗设施', checkSite: '归档做法/工作流程/保管场所', checkRandom: '', sampleDocs: ['纸质资料保管期限一览表','用印申请记录','证照管理规定','进出口业务管理制度','进出口电子档案截图','档案室照片'], checkPoints: ['归档时限是否符合海关要求','电子/纸质档案保管是否规范','报关专用章管理是否严格'] },
-            { id: 'IC-05', name: '进出口活动', desc: '进出口活动流程管理制度', dept: '关务部', supportDept: '', frequency: '持续', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '进出口流程制度+岗位设置+操作手册', standard: '建立并执行进出口活动的流程管理制度', checkFile: '进出口活动流程管理制度（各类型活动流程/岗位设置/职责/管理要求）', checkInterview: '进出口业务类型（一般贸易/加工贸易/减免税/暂时进出境等）；相应流程制度；实施情况/问题/改进措施/成效', checkSite: '各业务类型流程制度的具体实施、岗位设置、员工实际操作', checkRandom: '', sampleDocs: ['进出口活动文件清单','企业内部培训照片'], checkPoints: ['各类型进出口活动是否都有流程制度','岗位设置/职责是否清晰','实施情况与制度规定是否一致'] },
-            { id: 'IC-06', name: '内审制度', desc: '每年≥1次内部审计，建立审计档案', dept: '内审部', supportDept: '关务部', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '审计制度+计划+底稿+报告+整改跟踪', standard: '建立并执行对进出口活动的内部审计制度。每年实施≥1次内部审计并建立档案。高级认证企业应每年对持续符合标准实施内部审计', checkFile: '内部审计制度（审计部门/次数/时间/程序/内容/外部审计/问题改进/评估）', checkInterview: '审计部门/人员/人数/职责；每年审计方案/次数/时间；审计业务范围；最近一次审计发现的问题及改进情况', checkSite: '内部审计档案材料（方案/计划/团队分工/底稿/报告）', checkRandom: '', sampleDocs: ['内部审计制度','审计计划','审计底稿','审计报告','整改跟踪表'], checkPoints: ['是否每年至少1次内部审计','审计是否覆盖进出口活动全流程','发现问题是否规范改进并跟踪评估','可持续符合标准的审计是否独立'] },
-            { id: 'IC-07', name: '质量管理', desc: '进出口商品台账与质量管理', dept: '关务部', supportDept: '质检部', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '质量管理制度+台账记录+国外通报处置', standard: '进出口商品台账管理，记录差错改正及预防措施', checkFile: '质量管理相关制度文件', checkInterview: '进出口商品台账管理情况', checkSite: '', checkRandom: '1年内出口产品被国外通报安全卫生问题的记录', sampleDocs: ['质量管理制度','进出口商品台账','国外通报处置记录'], checkPoints: ['是否建立进出口商品台账','记录差错改正及预防措施','被国外通报情况是否在规定比例内'] },
-            { id: 'IC-08', name: '改进机制', desc: '问题改进与违法行为责任追究机制', dept: '关务部', supportDept: '法务部', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '改进机制文件+问题分析+责任追究记录', standard: '建立并执行对进出口活动中已发现问题的改进机制和违法行为的责任追究机制。对海关要求的改正/规范改进事项应由法定代表人组织实施', checkFile: '改进机制和责任追究机制书面文件（责任部门/岗位要求/工作流程/改进方式/落实评估）', checkInterview: '对问题分析/制定改进方案/实施结果；违法行为责任追究情况', checkSite: '', checkRandom: '发现问题/原因分析/改进的工作记录；违法行为责任追究工作记录', sampleDocs: ['改进机制文件','问题分析与改进记录','责任追究记录'], checkPoints: ['改进方案是否由法定代表人组织实施','改进措施是否有效落实','责任追究是否到位'] },
-            { id: 'IC-09', name: '信息系统', desc: '企业生产经营信息化系统', dept: 'IT部', supportDept: '关务部', frequency: '持续', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '信息系统手册+系统截图+穿行测试', standard: '具有管理企业生产经营活动的信息化系统', checkFile: '信息系统手册', checkInterview: '系统名称/上线时间/功能模块；是否全覆盖生产经营活动；关务/采购/生产/物流/仓储/财务等部门应用情况；信息流是否实现自动比对', checkSite: '登录系统演示——选取进出口单据验证货物流/单证流/信息流', checkRandom: '', sampleDocs: ['信息系统使用手册','系统预警报错截图','系统分析功能截图','系统穿行测试截图'], checkPoints: ['系统是否覆盖生产经营全过程','是否实现全流程记录/留痕/追溯/检索','进出口货物信息是否可在系统内正向及反向追溯'] },
-            { id: 'IC-10', name: '数据管理', desc: '数据管理制度，存储3年以上', dept: 'IT部', supportDept: '', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '数据管理制度+备份记录+机房安全', standard: '建立信息系统的数据管理制度，数据存储3年以上', checkFile: '生产经营数据管理制度（数据管理部门/容灾备份/安全管理/录入存储异常处理/档案保管）', checkInterview: '数据管理部门/岗位/人员；容灾备份情况/其他安全措施', checkSite: '数据录入操作/系统保存年限；机房防火/防水/防盗设施', checkRandom: '', sampleDocs: ['信息系统数据管理制度','数据备份管理制度','机房物理设施'], checkPoints: ['数据存储是否≥3年','是否具备容灾备份','数据安全措施是否到位','机房是否有必要防护设施'] },
-            { id: 'IC-11', name: '信息安全', desc: '信息安全管理制度，安全培训与追责', dept: 'IT部', supportDept: '所有部门', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '信息安全制度+培训记录+应急处置记录', standard: '建立并执行信息安全管理制度。对员工进行信息安全培训。对违规行为进行责任追究', checkFile: '信息安全管理制度的书面文件', checkInterview: '信息安全管理部门/岗位/人员；保障数据安全的具体措施；系统非正常运行及处置情况；员工对信息安全制度的掌握', checkSite: '信息安全措施演示、密码使用/防火墙/机房', checkRandom: '信息安全事故/系统故障的应急处置记录、责任追究记录', sampleDocs: ['信息安全管理制度','信息安全培训签到表','信息安全培训反馈意见表'], checkPoints: ['是否有防火墙等安全硬件/软件','是否发现系统被非法侵入或篡改数据','数据备份/恢复设施是否正常'] }
-        ]},
-        // 第二部分：财务状况（FI-01）
-        finance: { title: '财务状况', icon: 'chart-line', color: 'emerald', items: [
-            { id: 'FI-01', name: '财务状况标准', desc: '无保留意见审计报告+资产负债率≤95%', dept: '财务部', supportDept: '', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '审计报告+财务指标分析+偿债能力报告', standard: '企业申请高级认证应提交无保留意见审计报告。无连续3年资产负债率超过95%情形', checkFile: '审计报告、财务报表', checkInterview: '审计报告意见类型；资产负债率计算方式；连续三年财务数据', checkSite: '', checkRandom: '', sampleDocs: ['财务计算公式样本','财务指标释义','行业财务指标评价标准值','审计报告'], checkPoints: ['审计报告是否为无保留意见','连续3年资产负债率是否≤95%','财务报表数据是否准确'] }
-        ]},
-        // 第二部分：守法规范（LC-01 ~ LC-04）
-        compliance: { title: '守法规范', icon: 'balance-scale', color: 'violet', items: [
-            { id: 'LC-01', name: '遵守法律法规', desc: '企业及人员2年内无犯罪记录', dept: '关务部', supportDept: '法务部', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '无犯罪记录证明+自我申明', standard: '企业相关人员2年内未因故意犯罪受过刑事处罚。1年内被列入信用信息异常企业名录≤1次且≤30日。2年内无失信企业情形', checkFile: '无犯罪记录证明、自我申明', checkInterview: '人员守法情况；企业守法情况', checkSite: '', checkRandom: '', sampleDocs: ['无犯罪记录证明（示例）','自我申明（示例，企业盖章）'], checkPoints: ['无犯罪记录是否在2年内','自我申明是否加盖公章','异常企业名录次数是否超标'] },
-            { id: 'LC-02', name: '进出口业务规范', desc: '注册信息相符，有进出口记录，按时纳税', dept: '关务部', supportDept: '财务部', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '注册信息+进出口记录+缴税凭证', standard: '在海关的注册登记信息与实际相符；2年内有进出口活动；认证期间无超期未缴税款及罚没款项', checkFile: '海关注册登记信息、进出口记录、税款缴纳凭证', checkInterview: '注册信息是否与实际一致；进出口记录情况；税款是否按时缴纳', checkSite: '', checkRandom: '', sampleDocs: ['海关注册登记证书','进出口报关单汇总','税款缴纳凭证'], checkPoints: ['注册信息是否与实际一致','2年内是否有进出口记录','税款是否按时缴纳'] },
-            { id: 'LC-03', name: '海关管理要求', desc: '2年内无10种不得有的违规情形', dept: '关务部', supportDept: '法务部', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '合规情况说明+海关认定', standard: '2年内无海关责令限期改正逾期不改正等10种违规情形（详见检查表第15项）', checkFile: '企业情况说明及相关证明材料', checkInterview: '各项违规情形是否存在', checkSite: '', checkRandom: '', sampleDocs: ['企业合规情况说明','相关证明材料'], checkPoints: ['企业应配合海关了解相关情况','对认定有异议可说明并提供证明材料'] },
-            { id: 'LC-04', name: '外部信用', desc: '未被列入国家失信联合惩戒名单', dept: '关务部', supportDept: 'HR', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '自我申明+信用公示系统报告', standard: '企业和企业相关人员2年内均未被列入国家失信联合惩戒名单', checkFile: '未被列入失信联合惩戒名单自我申明', checkInterview: '企业和人员是否被列入失信名单', checkSite: '', checkRandom: '', sampleDocs: ['未被列入失信联合惩戒名单自我申明（企业）','未被列入失信联合惩戒名单自我申明（人员）','国家企业信用信息公示系统报告'], checkPoints: ['是否被列入国家失信联合惩戒名单','公示系统报告是否正常'] }
-        ]},
-        // 第三部分：贸易安全（TS-01 ~ TS-09）
-        security: { title: '贸易安全', icon: 'shield-alt', color: 'amber', items: [
-            { id: 'TS-01', name: '场所安全', desc: '场所安全管理设施防止未授权进入', dept: '行政部', supportDept: '', frequency: '每月', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '场所安全制度+设施检查+巡查记录', standard: '建立并执行企业经营场所安全的管理制度。场所应具备设施防止未载明货物和未经许可人员进入', checkFile: '场所安全管理制度（负责部门/职责/管理要求/应急处置/档案保管）', checkInterview: '责任部门岗位职责及日常工作情况', checkSite: '出入口/门窗/围墙/停车场/生产装卸存储区域的设施及定期检查', checkRandom: '设施检查维护的相关记录', sampleDocs: ['保安巡查记录表','场所安全改造照片','视频监控日常点检表','消防设施检查记录表','钥匙领用退还登记表','突发事件登记表','异常情况处置表','行政部月度巡检表'], checkPoints: ['场所分布情况和主要风险点','相应设施是否正常使用'] },
-            { id: 'TS-02', name: '进入安全', desc: '人员车辆出入管理，身份识别与访客登记', dept: '行政部', supportDept: 'IT部', frequency: '每月', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '出入管理制度+门禁授权+访客记录', standard: '建立并执行人员和车辆出入管理制度。对员工进行身份识别和出入权限控制。实行访客登记管理', checkFile: '人员和车辆出入管理制度', checkInterview: '出入管理责任部门/岗位；员工身份识别方式/权限控制/异常处置', checkSite: '内外门窗/大门部位及分布；进出控制权限授予和撤销流程', checkRandom: '员工身份标识发放/更换/补发/回收记录、访客登记记录', sampleDocs: ['工牌发放回收登记表','入厂须知登记表','外来人员车辆出入登记表','休假员工权限调整申请表'], checkPoints: ['访客是否检查带照片证件','访客是否佩戴临时标识','离职人员标识/钥匙是否回收','员工车辆是否停放在指定区域'] },
-            { id: 'TS-03', name: '人员安全', desc: '员工入职/离职/停职管理与背景调查', dept: 'HR', supportDept: '法务部', frequency: '持续', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '人力管理制度+背调记录+员工花名册', standard: '建立并执行员工入职/离职/停职管理制度。聘用前核实身份/就业经历/违法记录调查', checkFile: '员工入职/离职/停职管理制度；员工档案管理制度；聘用员工书面文件', checkInterview: '员工管理责任部门/岗位；员工清单内容及动态维护；拟聘用人员背景调查情况', checkSite: '', checkRandom: '员工清单（姓名/部门/职务/入职离职时间），入职档案和背景调查记录', sampleDocs: ['外部招聘制度','员工离职管理制度','员工招聘资料','人员离职资料'], checkPoints: ['安全敏感岗位是否定期背景调查','员工档案是否完整','员工清单是否动态更新'] },
-            { id: 'TS-04', name: '商业伙伴安全', desc: '评估检查商业伙伴供应链安全', dept: '采购部', supportDept: '关务部', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '供应商评估表+安全协议+绩效评价', standard: '建立并执行评估、检查商业伙伴供应链安全的管理制度', checkFile: '商业伙伴供应链安全管理制度（责任部门/职责/管理要求/档案保管）', checkInterview: '负责评估检查的责任部门/岗位/人员；评估项目实施情况和结论', checkSite: '', checkRandom: '商业伙伴供应链安全评估/检查记录（项目/过程/结论）', sampleDocs: ['供应商管理细则','供应商自我评价表','守法合规与贸易安全检查清单','新供应商评价表','基本交易合同','安全生产契约书','QCDS评价'], checkPoints: ['是否对商业伙伴提供贸易安全培训','海关高级认证企业可免于逐项认证','评估/检查是否符合标准'] },
-            { id: 'TS-05', name: '货物物品安全', desc: '运输/装卸/存储中货物安全管理', dept: '物流/仓储', supportDept: '', frequency: '每日', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '货物安全制度+仓库管理+交接记录', standard: '建立并执行保证进出口货物在运输/装卸和存储过程中的完整性/安全性的管理制度', checkFile: '货物物品安全管理制度（运输/装卸/存储环节/责任部门/职责/管理要求/档案保管）', checkInterview: '负责各环节的责任部门/岗位；货物进出全流程；各环节要求', checkSite: '对由商业伙伴完成的环节延伸认证', checkRandom: '', sampleDocs: ['资材仓库管理程序','成品仓库作业制度','运输装卸存储制度','原料及包装材料收货储存和发放程序','仓库管理现场展板'], checkPoints: ['运输/装卸/存储是否有安全管理制度','货物安全管理要求是否落实','商业伙伴环节是否延伸认证'] },
-            { id: 'TS-06', name: '集装箱安全', desc: '集装箱完整性安全性管理', dept: '物流/仓储', supportDept: '', frequency: '每单', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '集装箱管理制度+封条管理+检查记录', standard: '建立并执行保证集装箱完整性、安全性的管理制度（涉及集装箱或箱式货车运输的企业适用）', checkFile: '集装箱管理制度（责任部门/职责/管理要求/档案保管）', checkInterview: '国际贸易供应链中运输方式；集装箱安全管理责任部门；集装箱作业流程', checkSite: '', checkRandom: '不涉及集装箱运输的企业提供书面说明', sampleDocs: ['集装箱安全管理','封条管理制度','集装箱封条检查表','车辆检查登记表','集装箱内部外部检查展板','装货铅封安全检查展板'], checkPoints: ['高度安全封条标准（PAS ISO 17712）','施加封条前后的检查程序','转运途中是否采取锁闭装置','商业伙伴是否知晓封条标准'] },
-            { id: 'TS-07', name: '运输工具安全', desc: '运输工具完整性与安全管理', dept: '物流/仓储', supportDept: '', frequency: '每单', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '运输安全制度+车辆检查记录+司机管理', standard: '建立并执行保证运输工具的完整性、安全性的管理制度', checkFile: '运输工具安全管理制度（责任部门/职责/管理要求/档案保管）', checkInterview: '运输方式；安全管理责任部门/岗位', checkSite: '运输工具停放区域管理情况', checkRandom: '不涉及运输的提供书面说明', sampleDocs: ['车辆安全检查管理制度','车辆检查记录','车辆检查登记表','车辆状况检查表','物流运输标准','货车十点检查表','司机提货登记及身份核实','车底检查'], checkPoints: ['运输工具停放专门区域及安全管控','检查结果记录（工具号码/人员/日期）','藏匿可疑货物或改装现象的处置记录','驾驶员培训及资质管理'] },
-            { id: 'TS-08', name: '危机管理', desc: '灾害/紧急情况及时向海关报告', dept: '行政部', supportDept: '关务部', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '危机管理制度+演练记录+应急预案', standard: '发生的灾害或者紧急情况涉及海关业务的，应当及时向海关报告', checkFile: '危机管理制度', checkInterview: '企业危机管理培训情况和应急处置流程', checkSite: '危机处理模拟演练的实际执行情况', checkRandom: '危机管理培训记录、危机处理模拟演练记录', sampleDocs: ['危机管理制度（应急准备和响应控制程序）','消防演习记录','企业应急预案','应急演练照片（灭火/逃生）','化学品泄漏演习总结'], checkPoints: ['是否开展危机管理培训和模拟演练','涉及海关业务时是否及时报告'] },
-            { id: 'TS-09', name: '安全培训', desc: '贸易安全培训，供应链风险教育', dept: 'HR', supportDept: '行政部', frequency: '每年', evidence: { policy: true, record: true, approval: true }, evidenceDesc: '安全培训制度+培训记录+演练记录', standard: '建立并执行贸易安全的内部培训机制。定期进行国际贸易供应链风险教育和培训', checkFile: '贸易安全培训制度（责任部门/职责/管理要求/档案保管）', checkInterview: '培训责任部门/岗位；培训计划/方式/开展情况；安全岗位人员对工作的了解；员工报告意识', checkSite: '', checkRandom: '贸易安全内部培训记录、危机处理模拟演练记录', sampleDocs: ['供应链安全培训教材','安全培训制度','防恐安全培训','供应链安全培训记录','贸易安全/危机管理培训记录','危机处理模拟演练记录','消防演习照片'], checkPoints: ['培训计划/频次/人员范围是否合理','培训内容是否覆盖国际贸易供应链风险','危机模拟演练是否定期开展'] }
-        ]}
-    },
-    certified: {
-        internal: { title: '内部控制', icon: 'sitemap', color: 'blue', items: [
-            { id: 'C-IC01', name: '关企沟通', desc: '关企沟通机制', dept: '关务部', supportDept: '', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '沟通记录' },
-            { id: 'C-IC02', name: '单证管理', desc: '单证管理制度', dept: '关务部', supportDept: '', frequency: '每月', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '复核记录' }
-        ]},
-        finance: { title: '财务状况', icon: 'chart-line', color: 'emerald', items: [
-            { id: 'C-FI01', name: '财务指标', desc: '财务指标达标', dept: '财务部', supportDept: '', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '审计报告' }
-        ]},
-        compliance: { title: '守法规范', icon: 'balance-scale', color: 'violet', items: [
-            { id: 'C-LC01', name: '守法记录', desc: '守法合规', dept: '关务部', supportDept: '法务部', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '信用报告' }
-        ]},
-        security: { title: '贸易安全', icon: 'shield-alt', color: 'amber', items: [
-            { id: 'C-TS01', name: '场所安全', desc: '场所安全管理', dept: '行政部', supportDept: '', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '检查记录' },
-            { id: 'C-TS02', name: '人员安全', desc: '人员安全管理', dept: 'HR', supportDept: '', frequency: '每年', evidence: { policy: true, record: true, approval: false }, evidenceDesc: '背调记录' }
-        ]}
-    }
-};
-
-const questionBank = {
-    advanced: {
-        internal: [
-            { q: '海关业务培训制度是否建立并执行？', options: ['已建立并定期执行', '已建立但执行不完善', '未建立'] },
-            { q: '内部组织架构是否明确指定高级管理人员负责关务？', options: ['已明确指定', '已指定但未发文', '未指定'] },
-            { q: '单证复核或纠错制度是否落实到位？', options: ['双人复核制度完善', '单人复核', '无复核制度'] },
-            { q: '进出口单证归档管理是否规范？', options: ['规范归档', '基本规范', '不规范'] },
-            { q: '各类进出口活动是否有流程管理制度？', options: ['全类型有流程', '部分有流程', '无流程'] },
-            { q: '是否每年实施≥1次内部审计？', options: ['每年≥1次', '偶有开展', '未开展'] },
-            { q: '进出口商品台账管理是否到位？', options: ['台账完善', '台账不完整', '无台账'] },
-            { q: '问题改进机制和责任追究机制是否落实？', options: ['已落实', '部分落实', '未建立'] },
-            { q: '企业信息化系统是否覆盖生产经营全过程？', options: ['全覆盖', '部分覆盖', '未覆盖'] },
-            { q: '数据管理制度是否健全，存储是否≥3年？', options: ['制度健全', '制度不完善', '无制度'] },
-            { q: '信息安全管理制度和培训是否到位？', options: ['到位', '基本到位', '不足'] }
-        ],
-        finance: [
-            { q: '审计报告是否无保留意见且资产负债率≤95%？', options: ['符合', '接近临界值', '不符合'] }
-        ],
-        compliance: [
-            { q: '企业及人员2年内有无犯罪记录？', options: ['无', '有(已处理)', '有(未处理)'] },
-            { q: '海关注册信息是否相符且有2年内进出口记录？', options: ['相符且有记录', '相符无记录', '不相符'] },
-            { q: '2年内有无10种海关管理违规情形？', options: ['无任何违规', '有轻微但不影响', '有重大违规'] },
-            { q: '是否被列入国家失信联合惩戒名单？', options: ['未被列入', '不清楚', '已被列入'] }
-        ],
-        security: [
-            { q: '场所安全管理制度和设施是否到位？', options: ['制度设施到位', '基本到位', '不足'] },
-            { q: '出入管理和访客登记制度是否完善？', options: ['完善', '基本完善', '不足'] },
-            { q: '员工入职/离职管理和背景调查是否规范？', options: ['规范', '基本规范', '不规范'] },
-            { q: '商业伙伴供应链安全评估是否开展？', options: ['每年开展', '偶有开展', '未开展'] },
-            { q: '货物运输/装卸/存储安全管理是否到位？', options: ['到位', '基本到位', '不足'] },
-            { q: '集装箱安全管理和封条管理是否规范？', options: ['规范', '基本规范', '不适用'] },
-            { q: '运输工具安全检查和司机管理是否到位？', options: ['到位', '基本到位', '不适用'] },
-            { q: '危机管理培训和模拟演练是否定期开展？', options: ['定期开展', '偶有开展', '未开展'] },
-            { q: '贸易安全培训是否覆盖全员？', options: ['覆盖全员', '部分覆盖', '未开展'] }
-        ]
-    },
-    certified: {
-        internal: [
-            { q: '关企沟通是否通畅？', options: ['通畅', '一般', '不畅'] },
-            { q: '单证管理是否规范？', options: ['规范', '基本规范', '不规范'] }
-        ],
-        finance: [ { q: '财务指标是否达标？', options: ['达标', '不达标'] } ],
-        compliance: [ { q: '守法记录是否良好？', options: ['良好', '有处罚'] } ],
-        security: [
-            { q: '场所安全是否合规？', options: ['合规', '不合规'] },
-            { q: '人员安全措施是否到位？', options: ['到位', '不到位'] }
-        ]
-    }
-};
-
-// ------------------------------------------------------------------------
-// 2. 应用状态
-// ------------------------------------------------------------------------
-
-let currentUser = null;
-let currentModule = 'dashboard';
-let stdType = 'advanced';
-let stdView = 'dimension';
-let currentDemoTab = 'internal';
-let assessmentAnswers = {};
-let assessmentType = 'advanced';
-
-function loadData(key, fallback) {
-    try { const v = localStorage.getItem('aeo_' + key); return v ? JSON.parse(v) : (typeof fallback === 'function' ? fallback() : fallback); }
-    catch(e) { return typeof fallback === 'function' ? fallback() : fallback; }
-}
-function saveData(key, val) { try { localStorage.setItem('aeo_' + key, JSON.stringify(val)); } catch(e) {} }
-
-// ------------------------------------------------------------------------
-// 3. Toast
-// ------------------------------------------------------------------------
-function showToast(msg, type) {
-    type = type || 'success';
-    const tc = document.getElementById('toastContainer');
-    const t = document.createElement('div');
-    t.className = 'toast ' + type;
-    const icons = { success: 'fa-check-circle text-emerald-500', warning: 'fa-exclamation-triangle text-amber-500', error: 'fa-times-circle text-red-500' };
-    t.innerHTML = '<i class="fas ' + (icons[type]||icons.success) + ' mr-2"></i><span style="flex:1;font-size:0.9rem;">' + msg + '</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#94a3b8;"><i class="fas fa-times"></i></button>';
-    tc.appendChild(t);
-    setTimeout(() => { t.style.animation = 'slideOut 0.3s ease'; setTimeout(() => t.remove(), 300); }, 4000);
-}
-
-// ------------------------------------------------------------------------
-// 4. 审计日志
-// ------------------------------------------------------------------------
-function addAuditLog(action, type, detail) {
-    const logs = loadData('auditLogs', []);
-    logs.unshift({ ts: new Date().toISOString(), user: currentUser ? currentUser.name : '系统', role: currentUser ? currentUser.role : 'system', action: action, type: type || 'general', detail: detail || '' });
-    if (logs.length > 500) logs.length = 500;
-    saveData('auditLogs', logs);
-}
-function renderAuditLog() {
-    const filter = (document.getElementById('auditLogFilter')||{}).value || '';
-    let logs = loadData('auditLogs', []);
-    if (filter) logs = logs.filter(l => l.type === filter);
-    const c = document.getElementById('auditLogContainer');
-    if (!logs.length) { c.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fas fa-inbox text-4xl mb-3"></i><p>暂无操作记录</p></div>'; return; }
-    c.innerHTML = logs.map(l => {
-        const d = new Date(l.ts);
-        return '<div class="flex items-start space-x-3 p-3 border-b border-slate-100 hover:bg-slate-50"><div class="w-8 h-8 bg-slate-100 rounded flex items-center justify-center flex-shrink-0"><i class="fas fa-circle text-xs ' + ({task:'text-blue-500',standards:'text-purple-500',assessment:'text-emerald-500',auth:'text-amber-500',data:'text-red-500'}[l.type]||'text-slate-400') + '"></i></div><div class="flex-1 min-w-0"><p class="text-sm text-slate-700">' + l.action + '</p><p class="text-xs text-slate-400 mt-0.5">' + l.user + ' · ' + l.detail + '</p></div><span class="text-xs text-slate-400 flex-shrink-0">' + d.toLocaleString() + '</span></div>';
-    }).join('');
-}
-function showAuditLog() { renderAuditLog(); document.getElementById('auditLogModal').classList.add('active'); }
-
-// ------------------------------------------------------------------------
-// 5. 登录/登出
-// ------------------------------------------------------------------------
-function doLogin() {
-    const role = document.getElementById('loginRole').value;
-    const name = document.getElementById('loginName').value.trim() || '用户';
-    currentUser = { role: role, name: name };
-    saveData('currentUser', currentUser);
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('appContainer').style.display = 'block';
-    document.getElementById('headerUserName').textContent = name;
-    document.getElementById('headerRoleBadge').textContent = ROLE_LABELS[role] || role;
-    if (role === 'customs_viewer') {
-        const btn = document.getElementById('btnCreateTask'); if (btn) btn.style.display = 'none';
-        const btn2 = document.getElementById('btnEditEnterprise'); if (btn2) btn2.style.display = 'none';
-    }
-    addAuditLog('用户登录', 'auth', name + ' 以 ' + ROLE_LABELS[role] + ' 身份登录');
-    initApp();
-}
-function doLogout() {
-    addAuditLog('用户登出', 'auth', (currentUser||{}).name + ' 登出');
-    currentUser = null; saveData('currentUser', null);
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('appContainer').style.display = 'none';
-}
-
-// ------------------------------------------------------------------------
-// 6. 导航 & 侧边栏
-// ------------------------------------------------------------------------
-function navigateTo(module) {
-    currentModule = module;
-    document.querySelectorAll('.module-content').forEach(el => el.classList.remove('active'));
-    const target = document.getElementById(module);
-    if (target) target.classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    const navItem = document.querySelector('.nav-item[data-module="' + module + '"]');
-    if (navItem) navItem.classList.add('active');
-    if (window.innerWidth <= 1024) toggleSidebar(false);
-    if (module === 'standards') loadStandards();
-    if (module === 'tasks') { loadTasks(); renderTaskTable(); renderTaskKanban(); }
-    if (module === 'assessment') loadAssessment();
-    if (module === 'demo') { renderDemoContent(); renderEvidenceTimeline(); }
-    if (module === 'dashboard') updateDashboard();
-}
-function toggleSidebar(forceState) {
-    const sb = document.getElementById('mainSidebar');
-    const ov = document.getElementById('sidebarOverlay');
-    const isOpen = sb.classList.contains('open');
-    const shouldOpen = forceState !== undefined ? forceState : !isOpen;
-    sb.classList.toggle('open', shouldOpen); ov.classList.toggle('open', shouldOpen);
-}
-function renderSidebar() {
-    const nav = document.getElementById('sidebarNav');
-    const items = [
-        { icon: 'fa-chart-pie', label: '系统首页', module: 'dashboard' },
-        { icon: 'fa-building', label: '企业介绍', module: 'enterprise' },
-        { icon: 'fa-gavel', label: '法律法规', module: 'laws' },
-        { icon: 'fa-clipboard-list', label: '认证标准', module: 'standards' },
-        { icon: 'fa-clipboard-check', label: '合规自评', module: 'assessment' },
-        { icon: 'fa-handshake', label: '供应商信用', module: 'supplier' },
-        { icon: 'fa-tasks', label: '任务管理', module: 'tasks' },
-        { icon: 'fa-search', label: '内部审计', module: 'audit' },
-        { icon: 'fa-folder', label: '制度文件', module: 'documents' },
-        { icon: 'fa-graduation-cap', label: '培训中心', module: 'training' }
-    ];
-    if (!currentUser || currentUser.role !== 'customs_viewer') {
-        items.push({ icon: 'fa-shield-alt', label: '🏛 海关演示', module: 'demo' });
-    }
-    nav.innerHTML = items.map(item => {
-        const active = item.module === currentModule ? 'active' : '';
-        return '<div class="nav-item ' + active + ' flex items-center px-4 py-2.5 text-sm text-slate-600 rounded-lg mb-0.5" data-module="' + item.module + '" onclick="navigateTo(\'' + item.module + '\')"><i class="fas ' + item.icon + ' w-7 text-slate-400"></i><span>' + item.label + '</span></div>';
-    }).join('');
-    nav.innerHTML += '<div class="border-t border-slate-200 mt-4 pt-4"><div class="nav-item flex items-center px-4 py-2.5 text-sm text-slate-500 rounded-lg cursor-pointer hover:bg-slate-50" onclick="openImportModal()"><i class="fas fa-file-import w-7 text-slate-400"></i><span>数据导入/导出</span></div><div class="nav-item flex items-center px-4 py-2.5 text-sm text-slate-500 rounded-lg cursor-pointer hover:bg-slate-50" onclick="showAuditLog()"><i class="fas fa-history w-7 text-slate-400"></i><span>审计日志</span></div></div>';
-}
-function openImportModal() { document.getElementById('importModal').classList.add('active'); }
-
-// ------------------------------------------------------------------------
-// 7. Dashboard
-// ------------------------------------------------------------------------
-function updateDashboard() {
-    const assessmentResults = loadData('assessmentResults', {});
-    const tasks = loadData('tasks', []);
-    let assessmentScore = 0, assessmentTotal = 0;
-    Object.keys(assessmentResults).forEach(k => { assessmentTotal++; assessmentScore += parseInt(assessmentResults[k]) || 0; });
-    const avgAssessment = assessmentTotal > 0 ? (assessmentScore / assessmentTotal) * 10 : 0;
-    const totalTasks = tasks.length;
-    const doneTasks = tasks.filter(t => t.status === '已完成' || t.status === '已关闭').length;
-    const taskRate = totalTasks > 0 ? (doneTasks / totalTasks) * 100 : 0;
-    const auditRate = 95;
-    const overall = Math.round(avgAssessment * 0.4 + taskRate * 0.35 + auditRate * 0.25);
-
-    document.getElementById('mainScoreCircle').style.setProperty('--score', Math.min(overall, 100));
-    document.getElementById('mainScoreText').textContent = overall || '--';
-    document.getElementById('navComplianceScore').textContent = (overall || '--') + '/100';
-    document.getElementById('navProgressBar').style.width = Math.min(overall || 0, 100) + '%';
-
-    const dims = ['internal','finance','compliance','security'];
-    const dimLabels = ['scoreInternal','scoreFinance','scoreCompliance','scoreSecurity'];
-    const dimBars = ['barInternal','barFinance','barCompliance','barSecurity'];
-    dims.forEach((d, i) => {
-        const items = (standardsData[stdType]||{})[d] ? standardsData[stdType][d].items : [];
-        const done = items.filter(it => it.evidence.policy && it.evidence.record && it.evidence.approval).length;
-        document.getElementById(dimLabels[i]).textContent = (items.length > 0 ? done + '/' + items.length : '--');
-        document.getElementById(dimBars[i]).style.width = (items.length > 0 ? Math.round(done/items.length*100) : 0) + '%';
-    });
-
-    const deptSnapshot = document.getElementById('deptSnapshot');
-    const deptTaskCount = {};
-    DEPARTMENTS.forEach(d => { deptTaskCount[d] = { total: 0, done: 0 }; });
-    tasks.forEach(t => { if (deptTaskCount[t.dept]) { deptTaskCount[t.dept].total++; if (t.status === '已完成' || t.status === '已关闭') deptTaskCount[t.dept].done++; } });
-    deptSnapshot.innerHTML = DEPARTMENTS.map(d => {
-        const info = deptTaskCount[d]||{total:0,done:0};
-        const rate = info.total > 0 ? Math.round(info.done/info.total*100) : 0;
-        const color = rate >= 80 ? 'emerald' : rate >= 50 ? 'amber' : 'red';
-        return '<div class="p-3 bg-slate-50 rounded-lg border border-slate-200"><p class="text-sm font-medium text-slate-700">' + d + '</p><p class="text-lg font-bold text-' + color + '-600">' + rate + '%</p><div class="progress-bar mt-1"><div class="progress-fill bg-' + color + '-500" style="width:' + rate + '%"></div></div><p class="text-xs text-slate-400 mt-1">' + info.done + '/' + info.total + '</p></div>';
-    }).join('');
-    document.getElementById('lastUpdateDate').textContent = '数据更新: ' + new Date().toLocaleDateString('zh-CN');
-}
-
-// ------------------------------------------------------------------------
-// 8. 认证标准
-// ------------------------------------------------------------------------
-function loadStandards() {
-    const data = standardsData[stdType]; if (!data) return;
-    const dimView = document.getElementById('dimensionView');
-    dimView.innerHTML = Object.keys(data).map(key => {
-        const dim = data[key];
-        const count = dim.items.length;
-        const done = dim.items.filter(it => it.evidence.policy && it.evidence.record && it.evidence.approval).length;
-        const pct = count > 0 ? Math.round(done/count*100) : 0;
-        return '<div class="card-business rounded-lg overflow-hidden"><div class="p-4 ' + ({blue:'bg-blue-50',emerald:'bg-emerald-50',violet:'bg-violet-50',amber:'bg-amber-50'}[dim.color]||'bg-slate-50') + '"><div class="flex items-center justify-between mb-3"><div class="flex items-center space-x-2"><i class="fas fa-' + dim.icon + ' text-' + dim.color + '-600 text-lg"></i><h3 class="font-bold text-slate-800">' + dim.title + '</h3></div><span class="text-xs bg-white px-3 py-1 rounded-full border border-slate-200">' + count + '项标准</span></div><div class="flex justify-between text-sm"><span class="text-slate-500">证据完成</span><span class="font-bold text-slate-700">' + done + '/' + count + ' (' + pct + '%)</span></div><div class="progress-bar mt-2"><div class="progress-fill bg-' + dim.color + '-500" style="width:' + pct + '%"></div></div></div><div class="divide-y divide-slate-100">' + dim.items.map(it => renderStandardItem(it)).join('') + '</div></div>';
-    }).join('');
-    document.getElementById('departmentView').innerHTML = renderDeptView();
-}
-function renderStandardItem(it) {
-    const ev = it.evidence;
-    const dots = [{label:'制度',done:ev.policy},{label:'记录',done:ev.record},{label:'审批',done:ev.approval}];
-    return '<div class="p-4 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-b-0"><div class="flex items-start justify-between cursor-pointer" onclick="this.nextElementSibling.classList.toggle(\'hidden\')"><div class="flex-1"><div class="flex items-center space-x-2 mb-1"><span class="text-xs font-mono font-bold text-slate-400">' + it.id + '</span><span class="font-medium text-slate-800">' + it.name + '</span><i class="fas fa-chevron-down text-slate-300 text-xs ml-1"></i></div><p class="text-xs text-slate-500 mb-2">' + it.desc + '</p><div class="flex items-center space-x-3 text-xs text-slate-400"><span><i class="fas fa-building mr-1"></i>' + it.dept + '</span>' + (it.supportDept ? '<span><i class="fas fa-users mr-1"></i>' + it.supportDept + '</span>' : '') + '<span><i class="far fa-clock mr-1"></i>' + it.frequency + '</span></div></div><div class="flex items-center space-x-1.5 ml-3">' + dots.map(d => '<span class="evidence-dot ' + (d.done ? 'done' : 'miss') + '">' + d.label + '</span>').join('') + '</div></div><div class="hidden mt-3 pl-4 border-l-2 border-slate-200 ml-1">' +
-        '<div class="p-3 bg-slate-50 rounded-lg text-xs space-y-2">' +
-        '<p><span class="font-semibold text-slate-700">📋 标准要求：</span><span class="text-slate-600">' + (it.standard || it.desc) + '</span></p>' +
-        (it.checkFile ? '<p><span class="font-semibold text-slate-700">📄 检查文件：</span><span class="text-slate-600">' + it.checkFile + '</span></p>' : '') +
-        (it.checkInterview ? '<p><span class="font-semibold text-slate-700">💬 询问：</span><span class="text-slate-600">' + it.checkInterview + '</span></p>' : '') +
-        (it.checkSite ? '<p><span class="font-semibold text-slate-700">🔍 实地查看：</span><span class="text-slate-600">' + it.checkSite + '</span></p>' : '') +
-        (it.checkRandom ? '<p><span class="font-semibold text-slate-700">📋 随机抽查：</span><span class="text-slate-600">' + it.checkRandom + '</span></p>' : '') +
-        (it.sampleDocs && it.sampleDocs.length ? '<p><span class="font-semibold text-slate-700">📎 样本资料：</span><span class="text-slate-600">' + it.sampleDocs.join('、') + '</span></p>' : '') +
-        (it.checkPoints && it.checkPoints.length ? '<div><span class="font-semibold text-slate-700">⚠️ 检查要点：</span><ul class="list-disc list-inside text-slate-600 mt-1">' + it.checkPoints.map(cp => '<li>' + cp + '</li>').join('') + '</ul></div>' : '') +
-        '</div>' +
-        '<p class="text-xs text-slate-400 mt-2">📎 证据要求: ' + it.evidenceDesc + '</p></div></div>';
-}
-function renderDeptView() {
-    const data = standardsData[stdType]; if (!data) return '';
-    const deptMap = {}; DEPARTMENTS.forEach(d => deptMap[d] = []);
-    Object.keys(data).forEach(dimKey => { data[dimKey].items.forEach(it => { if (deptMap[it.dept]) deptMap[it.dept].push(it); }); });
-    return DEPARTMENTS.filter(d => deptMap[d].length > 0).map(dept => {
-        const items = deptMap[dept];
-        const done = items.filter(it => it.evidence.policy && it.evidence.record && it.evidence.approval).length;
-        const pct = items.length > 0 ? Math.round(done/items.length*100) : 0;
-        const sc = pct >= 80 ? 'emerald' : pct >= 50 ? 'amber' : 'red';
-        return '<div class="card-business rounded-lg p-4"><div class="flex items-center justify-between mb-3"><h3 class="font-bold text-slate-800"><i class="fas fa-building text-slate-400 mr-2"></i>' + dept + '</h3><span class="text-sm font-bold text-' + sc + '-600">' + done + '/' + items.length + ' ' + (pct >= 80 ? '✅' : pct >= 50 ? '⚠️' : '❌') + '</span></div><div class="progress-bar mb-3"><div class="progress-fill bg-' + sc + '-500" style="width:' + pct + '%"></div></div><div class="space-y-2">' + items.map(it => '<div class="flex items-center justify-between p-2 bg-slate-50 rounded"><div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">' + it.id + '</span><span class="text-sm text-slate-700">' + it.name + '</span></div><div class="flex items-center space-x-1">' + ['policy','record','approval'].map((k, i) => '<span class="evidence-dot ' + (it.evidence[k] ? 'done' : 'miss') + '">' + ['制度','记录','审批'][i] + '</span>').join('') + '</div></div>').join('') + '</div></div>';
-    }).join('');
-}
-function switchStandardsView(view) {
-    stdView = view;
-    document.getElementById('dimensionView').classList.toggle('hidden', view !== 'dimension');
-    document.getElementById('departmentView').classList.toggle('hidden', view !== 'department');
-    document.getElementById('viewBtnDimension').className = view === 'dimension' ? 'view-toggle-btn px-4 py-2 rounded-md text-sm font-medium bg-white text-slate-800 shadow-sm' : 'view-toggle-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500';
-    document.getElementById('viewBtnDept').className = view === 'department' ? 'view-toggle-btn px-4 py-2 rounded-md text-sm font-medium bg-white text-slate-800 shadow-sm' : 'view-toggle-btn px-4 py-2 rounded-md text-sm font-medium text-slate-500';
-}
-function switchStandardType(type) {
-    stdType = type;
-    document.getElementById('stdBtnAdvanced').className = type === 'advanced' ? 'px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium shadow-md' : 'px-4 py-2 bg-white text-slate-600 border border-slate-300 rounded-lg text-sm font-medium';
-    document.getElementById('stdBtnCertified').className = type === 'certified' ? 'px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium shadow-md' : 'px-4 py-2 bg-white text-slate-600 border border-slate-300 rounded-lg text-sm font-medium';
-    loadStandards();
-}
-
-// ------------------------------------------------------------------------
-// 9. 任务管理
-// ------------------------------------------------------------------------
-function generateTaskId() {
-    const tasks = loadData('tasks', []);
-    const nums = tasks.map(t => { const m = t.id.match(/TSK-2026-(\d+)/); return m ? parseInt(m[1]) : 0; });
-    const next = nums.length > 0 ? Math.max(...nums) + 1 : 1;
-    return 'TSK-2026-' + String(next).padStart(4, '0');
-}
-function loadTasks() { return loadData('tasks', []); }
-function showTaskModal() {
-    const deptSelect = document.getElementById('taskDeptInput');
-    deptSelect.innerHTML = DEPARTMENTS.map(d => '<option value="' + d + '">' + d + '</option>').join('');
-    const stdSelect = document.getElementById('taskStandardInput');
-    stdSelect.innerHTML = '<option value="">无特定关联</option>';
-    const data = standardsData['advanced'];
-    if (data) Object.keys(data).forEach(dimKey => { data[dimKey].items.forEach(it => { stdSelect.innerHTML += '<option value="' + it.id + '">' + it.id + ' ' + it.name + '</option>'; }); });
-    document.getElementById('taskModal').classList.add('active');
-}
-function closeTaskModal() { document.getElementById('taskModal').classList.remove('active'); }
-function createNewTask() {
-    const name = document.getElementById('taskNameInput').value.trim();
-    const dept = document.getElementById('taskDeptInput').value;
-    const owner = document.getElementById('taskOwnerInput').value.trim();
-    const due = document.getElementById('taskDueInput').value;
-    if (!name || !dept || !owner || !due) { showToast('请填写任务名称、执行部门、负责人和截止日期', 'error'); return; }
-    const tasks = loadData('tasks', []);
-    tasks.push({ id: generateTaskId(), name: name, standard: document.getElementById('taskStandardInput').value || '', dept: dept, owner: owner, due: due, req: document.getElementById('taskReqInput').value || '', attachReq: document.getElementById('taskAttachInput').value || '', status: '待下发', evidence: [], createdAt: new Date().toISOString() });
-    saveData('tasks', tasks);
-    closeTaskModal();
-    ['taskNameInput','taskOwnerInput','taskDueInput','taskReqInput','taskAttachInput'].forEach(id => document.getElementById(id).value = '');
-    showToast('任务创建成功: ' + name);
-    addAuditLog('创建任务: ' + name, 'task', dept + ' · ' + owner);
-    renderTaskTable(); renderTaskKanban(); updateDashboard();
-}
-function renderTaskTable() {
-    let tasks = loadData('tasks', []);
-    const filterDept = document.getElementById('taskFilterDept').value;
-    const filterStatus = document.getElementById('taskFilterStatus').value;
-    if (filterDept) tasks = tasks.filter(t => t.dept === filterDept);
-    if (filterStatus) tasks = tasks.filter(t => t.status === filterStatus);
-    tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    const container = document.getElementById('taskTableContainer');
-    if (!tasks.length) { container.innerHTML = '<div class="text-center py-12 text-slate-400"><i class="fas fa-inbox text-5xl mb-4"></i><p>暂无任务，点击右上角"新建任务"开始</p></div>'; return; }
-    const isChecked = function(id) { return selectedTasks.has(id); };
-    container.innerHTML = '<table class="w-full text-left text-sm"><thead class="bg-slate-50 border-b border-slate-200"><tr><th class="px-2 py-3 w-8"><input type="checkbox" onchange="document.querySelectorAll(\'.task-checkbox\').forEach(c=>{c.checked=this.checked;toggleTaskSelection(c.value)})"></th><th class="px-4 py-3 font-semibold text-slate-700">编号</th><th class="px-4 py-3 font-semibold text-slate-700">任务名称</th><th class="px-4 py-3 font-semibold text-slate-700">部门</th><th class="px-4 py-3 font-semibold text-slate-700">负责人</th><th class="px-4 py-3 font-semibold text-slate-700">状态</th><th class="px-4 py-3 font-semibold text-slate-700">截止日期</th><th class="px-4 py-3 font-semibold text-slate-700">操作</th></tr></thead><tbody class="divide-y divide-slate-100">' + tasks.map(t => {
-        const isOverdue = new Date(t.due) < new Date() && t.status !== '已完成' && t.status !== '已关闭';
-        const sc = isOverdue ? 'overdue' : ({'待下发':'pending','执行中':'executing','审核中':'review','已完成':'done','已关闭':'closed'}[t.status]||'pending');
-        return '<tr class="hover:bg-slate-50"><td class="px-2 py-3"><input type="checkbox" class="task-checkbox" value="' + t.id + '" ' + (selectedTasks.has(t.id)?'checked':'') + ' onchange="toggleTaskSelection(this.value)"></td><td class="px-4 py-3 font-mono font-medium text-slate-600">' + t.id + '</td><td class="px-4 py-3 font-medium text-slate-800">' + t.name + '</td><td class="px-4 py-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">' + t.dept + '</span></td><td class="px-4 py-3 text-slate-600">' + t.owner + '</td><td class="px-4 py-3"><span class="task-status ' + sc + '">' + (isOverdue ? '已超期' : t.status) + '</span></td><td class="px-4 py-3 ' + (isOverdue ? 'text-red-600 font-medium' : 'text-slate-500') + '">' + t.due + '</td><td class="px-4 py-3"><div class="flex space-x-2">' + (t.status === '待下发' ? '<button onclick="confirmAndUpdateTask(\'' + t.id + '\',\'执行中\',\'下发\')" class="text-blue-600 hover:text-blue-800 text-xs">下发</button>' : '') + (t.status === '执行中' ? '<button onclick="confirmAndUpdateTask(\'' + t.id + '\',\'审核中\',\'提交审核\')" class="text-purple-600 hover:text-purple-800 text-xs">提交</button>' : '') + (t.status === '审核中' ? '<button onclick="confirmAndUpdateTask(\'' + t.id + '\',\'已完成\',\'审核通过\')" class="text-emerald-600 hover:text-emerald-800 text-xs">通过</button><button onclick="confirmAndUpdateTask(\'' + t.id + '\',\'执行中\',\'退回重做\')" class="text-red-600 hover:text-red-800 text-xs">退回</button>' : '') + '<button onclick="showTaskDetail(\'' + t.id + '\')" class="text-slate-500 hover:text-slate-700 text-xs">详情</button></div></td></tr>';
-    }).join('') + '</tbody></table>';
-    updateTaskCounts();
-}
-function updateTaskCounts() {
-    const tasks = loadData('tasks', []);
-    document.getElementById('taskPendingCount').textContent = tasks.filter(t => t.status === '待下发').length;
-    document.getElementById('taskExecutingCount').textContent = tasks.filter(t => t.status === '执行中').length;
-    document.getElementById('taskReviewCount').textContent = tasks.filter(t => t.status === '审核中').length;
-    document.getElementById('taskDoneCount').textContent = tasks.filter(t => t.status === '已完成').length;
-    document.getElementById('taskOverdueCount').textContent = tasks.filter(t => new Date(t.due) < new Date() && t.status !== '已完成' && t.status !== '已关闭').length;
-}
-function renderTaskKanban() {
-    const tasks = loadData('tasks', []);
-    document.getElementById('taskKanban').innerHTML = DEPARTMENTS.map(dept => {
-        const deptTasks = tasks.filter(t => t.dept === dept && t.status !== '已关闭');
-        if (!deptTasks.length) return '';
-        return '<div class="border border-slate-200 rounded-lg p-3"><div class="flex items-center justify-between mb-2"><h4 class="font-semibold text-slate-700 text-sm">' + dept + '</h4><span class="text-xs bg-slate-100 px-2 py-0.5 rounded">' + deptTasks.length + '项待办</span></div>' + deptTasks.map(t => {
-            const pct = ({'待下发':0,'执行中':40,'审核中':70,'已完成':100}[t.status]||0);
-            const overdue = new Date(t.due) < new Date() && t.status !== '已完成' && t.status !== '已关闭';
-            return '<div class="flex items-center justify-between p-2 bg-slate-50 rounded mb-1 text-xs"><span class="font-medium text-slate-700" style="flex:1;">' + t.name.substring(0, 20) + '</span><div class="flex items-center space-x-2"><div class="w-16 bg-slate-200 rounded h-1.5"><div class="bg-' + (overdue ? 'red' : (t.status === '已完成' ? 'emerald' : 'blue')) + '-500 h-1.5 rounded" style="width:' + pct + '%"></div></div><span class="text-slate-400">' + pct + '%</span></div></div>';
-        }).join('') + '</div>';
-    }).join('');
-}
-function updateTaskStatus(id, newStatus) {
-    const tasks = loadData('tasks', []);
-    const task = tasks.find(t => t.id === id);
-    if (task) { task.status = newStatus; saveData('tasks', tasks); addAuditLog('更新任务状态: ' + task.name + ' → ' + newStatus, 'task', task.id + ' ' + task.dept); showToast('任务状态已更新: ' + task.name + ' → ' + newStatus); }
-    renderTaskTable(); renderTaskKanban(); updateDashboard();
-}
-function showTaskDetail(id) {
-    const t = loadData('tasks', []).find(task => task.id === id);
-    if (t) showToast('任务 ' + t.id + ': ' + t.name + ' [' + t.status + ']', 'success');
-}
-
-// ------------------------------------------------------------------------
-// 10. 合规自评
-// ------------------------------------------------------------------------
-function loadAssessment() {
-    assessmentType = document.getElementById('assessmentType').value;
-    const qs = questionBank[assessmentType]; if (!qs) return;
-    assessmentAnswers = loadData('assessmentAnswers', {});
-    const container = document.getElementById('questionnaireContainer');
-    container.innerHTML = Object.keys(qs).map(dimKey => {
-        const dim = standardsData[assessmentType][dimKey];
-        const questions = qs[dimKey];
-        return '<div class="card-business rounded-lg p-6 mb-6"><h3 class="font-bold text-slate-800 mb-4"><i class="fas fa-' + dim.icon + ' text-' + dim.color + '-600 mr-2"></i>' + dim.title + '</h3><div class="space-y-4">' + questions.map((q, qi) => {
-            const key = dimKey + '_' + qi;
-            const saved = assessmentAnswers[key] || '';
-            return '<div class="assessment-question"><p class="font-medium text-slate-700 text-sm mb-3">' + (qi+1) + '. ' + q.q + '</p><div class="flex flex-wrap gap-3">' + q.options.map((opt, oi) => {
-                const val = String(3 - oi);
-                const checked = saved === val ? 'checked' : '';
-                return '<label class="flex items-center space-x-2 px-4 py-2 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors"><input type="radio" name="q_' + dimKey + '_' + qi + '" value="' + val + '" ' + checked + ' onchange="saveAssessmentAnswer(\'' + key + '\',\'' + val + '\')" class="mr-1"><span class="text-sm text-slate-700">' + opt + '</span></label>';
-            }).join('') + '</div></div>';
-        }).join('') + '</div></div>';
-    }).join('');
-    updateAssessmentProgress();
-}
-function saveAssessmentAnswer(key, val) { assessmentAnswers[key] = val; saveData('assessmentAnswers', assessmentAnswers); updateAssessmentProgress(); }
-function updateAssessmentProgress() {
-    const qs = questionBank[assessmentType]; if (!qs) return;
-    let totalScore = 0, totalQs = 0;
-    Object.keys(qs).forEach(dimKey => {
-        const questions = qs[dimKey];
-        let answered = 0, score = 0;
-        questions.forEach((q, qi) => {
-            const val = assessmentAnswers[dimKey + '_' + qi];
-            if (val !== undefined && val !== '') { answered++; score += parseInt(val) || 0; }
-        });
-        totalQs += questions.length; totalScore += score;
-        const cap = dimKey.charAt(0).toUpperCase() + dimKey.slice(1);
-        document.getElementById('progress' + cap).textContent = answered + '/' + questions.length;
-        document.getElementById('progressBar' + cap).style.width = (questions.length > 0 ? Math.round(answered/questions.length*100) : 0) + '%';
-    });
-    document.getElementById('estimatedScore').textContent = totalQs > 0 ? Math.round(totalScore / (totalQs*3) * 100) : 0;
-}
-function switchAssessmentType() { assessmentType = document.getElementById('assessmentType').value; assessmentAnswers = {}; loadAssessment(); }
-function submitAssessment() {
-    const qs = questionBank[assessmentType]; if (!qs) return;
-    let total = 0, answered = 0;
-    Object.keys(qs).forEach(dimKey => { qs[dimKey].forEach((q, qi) => { const val = assessmentAnswers[dimKey + '_' + qi]; if (val !== undefined && val !== '') { answered++; total += parseInt(val) || 0; } }); });
-    const totalQs = Object.values(qs).reduce((s, a) => s + a.length, 0);
-    const score = totalQs > 0 ? Math.round(total / (totalQs*3) * 100) : 0;
-    saveData('assessmentResults', assessmentAnswers); saveData('lastAssessmentScore', score); saveData('lastAssessmentDate', new Date().toISOString());
-    addAuditLog('提交合规自评', 'assessment', '类型: ' + (assessmentType === 'advanced' ? '高级认证' : '认证企业') + ' 得分: ' + score);
-    showToast('评估已提交！综合得分: ' + score + '/100', 'success');
-    updateDashboard();
-}
-function resetAssessment() { if (!confirm('确定要重置所有评估答案吗？')) return; assessmentAnswers = {}; saveData('assessmentAnswers', {}); loadAssessment(); showToast('评估问卷已重置', 'warning'); }
-
-// ------------------------------------------------------------------------
-// 11. 海关演示模式
-// ------------------------------------------------------------------------
-function toggleDemoMode() {
-    document.body.classList.toggle('demo-mode');
-    document.getElementById('demoWatermark').classList.toggle('hidden');
-    showToast(document.body.classList.contains('demo-mode') ? '已进入全屏演示模式' : '已退出演示模式', 'success');
-}
-function switchDemoTab(tab) {
-    currentDemoTab = tab;
-    document.querySelectorAll('.demo-tab').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
-    renderDemoContent();
-}
-function renderDemoContent() {
-    const data = standardsData['advanced']; if (!data || !data[currentDemoTab]) return;
-    const dim = data[currentDemoTab];
-    document.getElementById('demoContent').innerHTML = '<div class="bg-white rounded-lg border border-slate-200 overflow-hidden"><div class="p-4 ' + ({blue:'bg-blue-50',emerald:'bg-emerald-50',violet:'bg-violet-50',amber:'bg-amber-50'}[dim.color]||'bg-slate-50') + ' flex items-center justify-between"><div class="flex items-center space-x-2"><i class="fas fa-' + dim.icon + ' text-' + dim.color + '-600"></i><h3 class="font-bold text-slate-800">' + dim.title + '</h3></div><span class="text-sm text-slate-500">' + dim.items.length + '项标准 · 证据全覆盖</span></div><div class="divide-y divide-slate-100">' + dim.items.map(it => {
-        const allDone = it.evidence.policy && it.evidence.record && it.evidence.approval;
-        return '<div class="p-4 hover:bg-slate-50 cursor-pointer" onclick="toggleDemoDetail(this)"><div class="flex items-start justify-between"><div class="flex items-start space-x-3"><div class="w-8 h-8 ' + (allDone ? 'bg-emerald-100' : 'bg-amber-100') + ' rounded flex items-center justify-center flex-shrink-0"><i class="fas ' + (allDone ? 'fa-check text-emerald-600' : 'fa-exclamation text-amber-600') + '"></i></div><div><div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">' + it.id + '</span><span class="font-medium text-slate-800">' + it.name + '</span></div><p class="text-sm text-slate-500 mt-0.5">' + it.desc + '</p></div></div><span class="text-sm font-bold ' + (allDone ? 'text-emerald-600' : 'text-amber-600') + '">' + (allDone ? '✅ 齐全' : '⚠️ 部分缺失') + '</span></div><div class="demo-detail hidden mt-3 pl-11"><div class="p-3 bg-slate-50 rounded-lg border border-slate-200"><div class="grid grid-cols-3 gap-3 text-sm">' +
-        '<div class="p-2 bg-white rounded border ' + (it.evidence.policy ? 'border-emerald-200' : 'border-red-200') + '"><p class="text-xs text-slate-500">制度文件</p><p class="font-medium ' + (it.evidence.policy ? 'text-emerald-600' : 'text-red-500') + '">' + (it.evidence.policy ? '✅ 已制定' : '❌ 缺失') + '</p></div>' +
-        '<div class="p-2 bg-white rounded border ' + (it.evidence.record ? 'border-emerald-200' : 'border-red-200') + '"><p class="text-xs text-slate-500">执行记录</p><p class="font-medium ' + (it.evidence.record ? 'text-emerald-600' : 'text-red-500') + '">' + (it.evidence.record ? '✅ 有记录' : '❌ 缺失') + '</p></div>' +
-        '<div class="p-2 bg-white rounded border ' + (it.evidence.approval ? 'border-emerald-200' : 'border-red-200') + '"><p class="text-xs text-slate-500">审批留痕</p><p class="font-medium ' + (it.evidence.approval ? 'text-emerald-600' : 'text-red-500') + '">' + (it.evidence.approval ? '✅ 已审批' : '❌ 缺失') + '</p></div>' +
-        '</div><p class="text-xs text-slate-400 mt-2"><i class="fas fa-paperclip mr-1"></i>证据要求: ' + it.evidenceDesc + '</p>' +
-        '<div class="mt-2 pt-2 border-t border-slate-200 text-xs space-y-1">' +
-        (it.checkFile ? '<p><span class="font-semibold text-slate-600">📄 检查文件：</span><span class="text-slate-500">' + it.checkFile + '</span></p>' : '') +
-        (it.checkInterview ? '<p><span class="font-semibold text-slate-600">💬 询问：</span><span class="text-slate-500">' + it.checkInterview + '</span></p>' : '') +
-        (it.sampleDocs && it.sampleDocs.length ? '<p><span class="font-semibold text-slate-600">📎 样本资料：</span><span class="text-slate-500">' + it.sampleDocs.join('、') + '</span></p>' : '') +
-        '</div></div></div></div>';
-    }).join('') + '</div></div>';
-}
-function toggleDemoDetail(el) { const d = el.querySelector('.demo-detail'); if (d) d.classList.toggle('hidden'); }
-function renderEvidenceTimeline() {
-    const months = ['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06'];
-    const data = standardsData['advanced']; if (!data) return;
-    const allItems = Object.values(data).reduce((a, d) => a.concat(d.items), []);
-    document.getElementById('evidenceTimeline').innerHTML = '<div class="flex items-center gap-4 text-xs text-slate-500 mb-2"><span class="w-28">标准编号</span><span class="w-32">标准名称</span>' + months.map(m => '<span class="w-14 text-center">' + m.slice(-2) + '月</span>').join('') + '<span class="w-16 text-center">连续性</span></div>' + allItems.slice(0, 10).map(it => {
-        const cells = months.map(() => { const base = (it.evidence.policy?1:0)+(it.evidence.record?1:0)+(it.evidence.approval?1:0); const r=Math.random(); return base>=2&&r>0.2?'green':base>0&&r>0.5?'green':r>0.7?'gray':'red'; });
-        return '<div class="flex items-center gap-4 text-xs"><span class="w-28 font-mono text-slate-400">' + it.id + '</span><span class="w-32 text-slate-700 truncate">' + it.name + '</span>' + cells.map(c => '<span class="w-14 flex justify-center"><span class="evidence-cell ' + c + '"></span></span>').join('') + '<span class="w-16 text-center"><i class="fas ' + (cells.every(c=>c==='green') ? 'fa-check-circle text-emerald-500' : 'fa-exclamation-circle text-amber-500') + '"></i></span></div>';
-    }).join('');
-}
-function exportDemoReport() {
-    var content = document.getElementById('demoContent').innerHTML;
-    var w = window.open('', '_blank');
-    var d = w.document;
-    d.write('<html><head><title>AEO合规演示报告</title>');
-    d.write('<style>body{font-family:sans-serif;padding:40px;color:#333;}');
-    d.write('table{width:100%;border-collapse:collapse}');
-    d.write('th,td{border:1px solid #ddd;padding:8px;text-align:left}');
-    d.write('.header{text-align:center;margin-bottom:30px;border-bottom:3px solid #1e3a5f;padding-bottom:20px}</style></head>');
-    d.write('<body><div class=header>');
-    d.write('<h1>AEO合规证据全景演示报告</h1>');
-    d.write('<p>上海XX进出口有限公司 · 高级认证企业</p>');
-    d.write('<p>报告日期: ' + new Date().toLocaleDateString('zh-CN') + '</p></div>');
-    d.write('<div id=reportContent>' + content + '</div>');
-    d.write('</body></html>');
-    d.close();
-    var s = d.createElement('script');
-    s.textContent = 'window.print();';
-    d.body.appendChild(s);
-    addAuditLog('导出演示报告', 'data', '');
-}
-
-// ------------------------------------------------------------------------
-// 12. 通知系统
-// ------------------------------------------------------------------------
-function checkOverdueTasks() {
-    const tasks = loadData('tasks', []);
-    const notifications = [];
-    const now = new Date();
-    tasks.forEach(t => {
-        const due = new Date(t.due);
-        if (due < now && t.status !== '已完成' && t.status !== '已关闭') {
-            notifications.push({ msg: '任务 ' + t.id + ' ' + t.name + ' 已超期 ' + Math.ceil((now-due)/(1000*60*60*24)) + ' 天', severity: 'warning' });
-        }
-        const diff = Math.ceil((due-now)/(1000*60*60*24));
-        if (diff > 0 && diff <= 3 && t.status !== '已完成' && t.status !== '已关闭') {
-            notifications.push({ msg: '任务 ' + t.id + ' ' + t.name + ' 将在 ' + diff + ' 天后到期', severity: 'info' });
-        }
-    });
-    saveData('notifications', notifications);
-    const badge = document.getElementById('notifBadge');
-    if (badge) badge.textContent = notifications.length;
-    return notifications;
-}
-function showNotifications() {
-    const notifications = loadData('notifications', []);
-    const list = document.getElementById('notifList');
-    if (!notifications.length) { list.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fas fa-bell text-4xl mb-3"></i><p>暂无通知</p></div>'; }
-    else { list.innerHTML = notifications.map(n => '<div class="p-3 bg-slate-50 border border-slate-200 rounded-lg mb-2 text-sm">' + n.msg + '</div>').join(''); }
-    document.getElementById('notifModal').classList.add('active');
-}
-
-// ------------------------------------------------------------------------
-// 13. 评分说明
-// ------------------------------------------------------------------------
-function showScoreBreakdown() {
-    const assessmentScore = loadData('lastAssessmentScore', 0);
-    const tasks = loadData('tasks', []);
-    const taskRate = tasks.length > 0 ? Math.round(tasks.filter(t => t.status === '已完成' || t.status === '已关闭').length / tasks.length * 100) : 0;
-    document.getElementById('sbAssessment').textContent = assessmentScore + '/100';
-    document.getElementById('sbTasks').textContent = taskRate + '%';
-    document.getElementById('sbAudit').textContent = '95%';
-    document.getElementById('scoreModal').classList.add('active');
-}
-
-// ------------------------------------------------------------------------
-// 14. 数据导入/导出
-// ------------------------------------------------------------------------
-function exportData(format) {
-    const data = { exportTime: new Date().toISOString(), user: currentUser ? currentUser.name : 'system', standards: standardsData, tasks: loadData('tasks', []), assessmentResults: loadData('assessmentResults', {}), auditLogs: loadData('auditLogs', []) };
-    if (format === 'json') {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'aeo_export_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
-        URL.revokeObjectURL(url);
-    } else if (format === 'csv') {
-        const tasks = data.tasks;
-        let csv = '任务编号,任务名称,执行部门,负责人,状态,截止日期\n';
-        tasks.forEach(t => { csv += '"' + t.id + '","' + t.name + '","' + t.dept + '","' + t.owner + '","' + t.status + '","' + t.due + '"\n'; });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'aeo_tasks_' + new Date().toISOString().slice(0,10) + '.csv'; a.click();
-        URL.revokeObjectURL(url);
-    }
-    addAuditLog('导出数据 (' + format.toUpperCase() + ')', 'data', '');
-    showToast('数据已导出 (' + format.toUpperCase() + ')', 'success');
-}
-function importData() {
-    const input = document.getElementById('importFileInput');
-    if (!input.files.length) { showToast('请先选择要导入的文件', 'error'); return; }
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            if (data.tasks) { saveData('tasks', data.tasks); showToast('成功导入 ' + data.tasks.length + ' 条任务数据'); }
-            if (data.auditLogs) saveData('auditLogs', data.auditLogs);
-            addAuditLog('导入数据', 'data', input.files[0].name);
-            renderTaskTable(); renderTaskKanban(); updateDashboard();
-        } catch(err) { showToast('导入失败: ' + err.message, 'error'); }
-    };
-    reader.readAsText(input.files[0]);
-}
-function resetAllData() {
-    if (!confirm('确定要重置所有数据吗？此操作不可恢复！')) return;
-    if (!confirm('再次确认：删除所有本地数据？')) return;
-    ['tasks','assessmentResults','assessmentAnswers','lastAssessmentScore','auditLogs','notifications'].forEach(k => localStorage.removeItem('aeo_' + k));
-    addAuditLog('重置所有数据', 'data', '全部数据已清空');
-    showToast('所有本地数据已重置', 'warning');
-    renderTaskTable(); renderTaskKanban(); updateDashboard();
-}
-
-// ------------------------------------------------------------------------
-// 15. 其他模块
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-// 15a. IndexedDB 文件存储
-// ------------------------------------------------------------------------
-let _fileDB = null;
-function openFileDB() {
-    return new Promise((resolve, reject) => {
-        if (_fileDB) return resolve(_fileDB);
-        const req = indexedDB.open('AEOFileStore', 1);
-        req.onupgradeneeded = function(e) {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains('files')) {
-                const store = db.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
-                store.createIndex('category', 'category', { unique: false });
-                store.createIndex('name', 'name', { unique: false });
-            }
-        };
-        req.onsuccess = function(e) { _fileDB = e.target.result; resolve(_fileDB); };
-        req.onerror = function(e) { reject(e.target.error); };
-    });
-}
-async function saveFileToDB(file, category) {
-    const db = await openFileDB();
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const tx = db.transaction('files', 'readwrite');
-            const store = tx.objectStore('files');
-            const entry = { name: file.name, size: file.size, type: file.type, category: category || 'general', data: e.target.result, uploadedAt: new Date().toISOString() };
-            const req = store.add(entry);
-            req.onsuccess = function() { resolve({ id: req.result, name: file.name, size: file.size, type: file.type }); };
-            req.onerror = function() { reject(req.error); };
-        };
-        reader.onerror = function() { reject(reader.error); };
-        reader.readAsDataURL(file);
-    });
-}
-async function deleteFileFromDB(id) {
-    const db = await openFileDB();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('files', 'readwrite');
-        const req = tx.objectStore('files').delete(Number(id));
-        req.onsuccess = function() { resolve(); };
-        req.onerror = function() { reject(req.error); };
-    });
-}
-async function listFilesFromDB(category) {
-    const db = await openFileDB();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('files', 'readonly');
-        const store = tx.objectStore('files');
-        const req = category ? store.index('category').getAll(category) : store.getAll();
-        req.onsuccess = function() {
-            resolve((req.result||[]).map(f => ({ id: f.id, name: f.name, size: f.size, type: f.type, uploadedAt: f.uploadedAt })));
-        };
-        req.onerror = function() { reject(req.error); };
-    });
-}
-async function getFileDataFromDB(id) {
-    const db = await openFileDB();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction('files', 'readonly');
-        const req = tx.objectStore('files').get(Number(id));
-        req.onsuccess = function() { resolve(req.result ? req.result.data : null); };
-        req.onerror = function() { reject(req.error); };
-    });
-}
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + 'B';
-    if (bytes < 1048576) return (bytes/1024).toFixed(1) + 'KB';
-    return (bytes/1048576).toFixed(1) + 'MB';
-}
-function getFileIcon(type) {
-    if (!type) return 'fa-file';
-    if (type.includes('pdf')) return 'fa-file-pdf text-red-500';
-    if (type.includes('powerpoint')||type.includes('presentation')) return 'fa-file-powerpoint text-orange-500';
-    if (type.includes('word')||type.includes('document')) return 'fa-file-word text-blue-500';
-    if (type.includes('video')||type.includes('mp4')) return 'fa-file-video text-purple-500';
-    if (type.includes('image')) return 'fa-file-image text-green-500';
-    if (type.includes('excel')||type.includes('spreadsheet')) return 'fa-file-excel text-emerald-500';
-    return 'fa-file text-slate-400';
-}
-
-// ------------------------------------------------------------------------
-// 15b. 制度文件 & 财务指标
-// ------------------------------------------------------------------------
-async function uploadDocument() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.png,.txt';
-    input.onchange = async function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        if (file.size > 50*1024*1024) { showToast('文件大小不能超过50MB', 'error'); return; }
-        try {
-            const info = await saveFileToDB(file, 'document');
-            addAuditLog('上传制度文件: ' + info.name, 'general', formatFileSize(info.size));
-            showToast('文件上传成功: ' + info.name, 'success');
-            renderDocFiles();
-        } catch(err) { showToast('上传失败: ' + err.message, 'error'); }
-    };
-    input.click();
-}
-async function renderDocFiles() {
-    try {
-        const files = await listFilesFromDB('document');
-        const cats = [
-            { id: 'internal', label: '内部控制制度', icon: 'sitemap', color: 'blue' },
-            { id: 'trade', label: '贸易安全制度', icon: 'shield-alt', color: 'emerald' },
-            { id: 'finance', label: '财务指标档案', icon: 'chart-line', color: 'purple' },
-            { id: 'training', label: '培训记录档案', icon: 'graduation-cap', color: 'amber' }
-        ];
-        const grid = document.querySelector('#documents .grid-cols-2');
-        if (!grid) return;
-        const counts = [0,0,0,0];
-        files.forEach(function() { counts[Math.floor(Math.random() * 4)]++; });
-        var html = '';
-        for (var i = 0; i < cats.length; i++) {
-            var cat = cats[i];
-            var borderColor = cat.color + '-300';
-            html += '<div class="card-business rounded-lg p-4 cursor-pointer hover:shadow-md border-2 border-transparent hover:border-' + borderColor + '" onclick="filterDocs(\'' + cat.id + '\')">';
-            html += '<div class="flex items-center justify-between mb-2">';
-            html += '<i class="fas fa-' + cat.icon + ' text-' + cat.color + '-700 text-2xl"></i>';
-            html += '<span class="bg-' + cat.color + '-100 text-' + cat.color + '-700 px-2 py-1 rounded text-xs">' + counts[i] + '份</span>';
-            html += '</div>';
-            html += '<h4 class="font-semibold text-slate-800">' + cat.label + '</h4>';
-            html += '<p class="text-xs text-slate-500 mt-1">共 ' + files.length + ' 份文档</p>';
-            html += '</div>';
-        }
-        grid.innerHTML = html;
-    } catch(e) { console.log('renderDocFiles error:', e); }
-}
-async function filterDocs(cat) {
-    try {
-        const files = await listFilesFromDB('document');
-        const filtered = files.filter(() => true);
-        if (filtered.length === 0) { showToast('该分类暂无文件', 'info'); return; }
-        const names = filtered.map(f => '  • ' + f.name + ' (' + formatFileSize(f.size) + ')').join('\n');
-        showToast('共 ' + filtered.length + ' 份文件\n' + names, 'info');
-    } catch(e) { showToast('查询失败', 'error'); }
-}
-function saveFinanceData() {
-    const inputs = document.querySelectorAll('#documents input[type="number"]');
-    const data = {};
-    inputs.forEach(inp => {
-        const label = inp.previousElementSibling ? inp.previousElementSibling.textContent.trim() : '';
-        data[label] = inp.value;
-    });
-    saveData('financeData', data);
-    addAuditLog('保存财务指标', 'general', '已保存 ' + Object.keys(data).length + ' 项指标');
-    showToast('财务指标已保存', 'success');
-}
-
-// ------------------------------------------------------------------------
-// 15c. 培训中心
-// ------------------------------------------------------------------------
-async function uploadTrainingDoc() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf,.ppt,.pptx,.doc,.docx,.mp4,.avi,.mov,.zip,.rar,.jpg,.png';
-    input.multiple = true;
-    input.onchange = async function(e) {
-        const files = e.target.files;
-        if (!files.length) return;
-        let success = 0;
-        for (let i = 0; i < files.length; i++) {
-            if (files[i].size > 200*1024*1024) { showToast(files[i].name + ' 超过200MB限制，已跳过', 'warning'); continue; }
-            try {
-                await saveFileToDB(files[i], 'training');
-                success++;
-            } catch(err) { showToast(files[i].name + ' 上传失败: ' + err.message, 'error'); }
-        }
-        if (success > 0) {
-            addAuditLog('上传培训资料', 'general', '成功 ' + success + ' 份');
-            showToast('成功上传 ' + success + ' 份培训资料', 'success');
-            renderTrainingFiles();
-        }
-    };
-    input.click();
-}
-async function renderTrainingFiles() {
-    try {
-        const files = await listFilesFromDB('training');
-        const list = document.getElementById('trainingFileList');
-        if (!files.length) {
-            list.innerHTML = '<div class="text-center py-6 text-slate-400"><i class="fas fa-inbox text-3xl mb-2"></i><p class="text-xs">暂无上传文件</p></div>';
-            return;
-        }
-        list.innerHTML = files.slice().reverse().map(f => {
-            const date = new Date(f.uploadedAt).toLocaleDateString('zh-CN');
-            return '<div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200" data-fileid="' + f.id + '"><div class="flex items-center space-x-3"><i class="fas ' + getFileIcon(f.type) + ' text-lg"></i><div><p class="text-sm font-medium text-slate-700">' + escapeHtml(f.name) + '</p><p class="text-xs text-slate-500">上传时间: ' + date + ' | 大小: ' + formatFileSize(f.size) + '</p></div></div><button class="p-2 text-slate-400 hover:text-red-600" onclick="deleteTrainingFile(this)"><i class="fas fa-trash-alt"></i></button></div>';
-        }).join('');
-    } catch(e) { console.log('renderTrainingFiles error:', e); }
-}
-async function deleteTrainingFile(el) {
-    const row = el.closest('[data-fileid]');
-    if (!row) return;
-    const id = row.dataset.fileid;
-    if (!confirm('确定要删除此文件吗？')) return;
-    try {
-        await deleteFileFromDB(id);
-        row.remove();
-        addAuditLog('删除培训文件', 'general', 'ID: ' + id);
-        showToast('文件已删除', 'warning');
-    } catch(err) { showToast('删除失败', 'error'); }
-}
-
-// ------------------------------------------------------------------------
-// 15d. 其他模块函数
-// ------------------------------------------------------------------------
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
-}
-function editEnterprise() {
-    const d = document.getElementById('enterpriseDesc');
-    const n = prompt('编辑企业简介:', d.textContent);
-    if (n && n.trim()) {
-        while (d.firstChild) d.removeChild(d.firstChild);
-        d.appendChild(document.createTextNode(n.trim()));
-        addAuditLog('更新企业信息', 'general', '企业简介已更新');
-        showToast('企业信息已更新', 'success');
-    }
-}
-function querySupplier() { const q = document.getElementById('supplierQuery').value.trim(); if (!q) { showToast('请输入企业名称或信用代码', 'warning'); return; } document.getElementById('supplierResult').classList.remove('hidden'); addAuditLog('查询供应商: ' + q, 'general', ''); showToast('查询完成', 'success'); }
-function viewLawDetail(id) {
-    const laws = { '282': '海关总署令第282号\n\n《中华人民共和国海关注册登记和备案企业信用管理办法》\n\n2026年1月13日公布，2026年4月1日施行。\n\n主要变化：\n1. 信用等级由四级调整为五级\n2. 新增高级认证企业和认证企业标准\n3. 简化复核程序\n4. 强化信用信息共享', '34': '海关总署公告2026年第34号\n\n关于公布《海关高级认证企业标准》《海关认证企业标准》的公告\n\n2026年3月30日发布。\n\n主要内容：\n• 高级认证企业标准：4个维度30项标准\n• 认证企业标准：4个维度9项标准\n• 每项标准明确制度要求、执行记录、审批留痕' };
-    alert(laws[id] || '查看海关总署官网获取完整法规原文');
-}
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-// ------------------------------------------------------------------------
-// 15e. 全局搜索
-// ------------------------------------------------------------------------
-function doGlobalSearch() {
-    const q = document.getElementById('globalSearch').value.trim().toLowerCase();
-    if (!q) { showToast('请输入搜索关键词', 'info'); return; }
-    const results = [];
-
-    // 搜索标准
-    Object.keys(standardsData).forEach(type => {
-        Object.keys(standardsData[type]).forEach(dimKey => {
-            standardsData[type][dimKey].items.forEach(it => {
-                if (it.id.toLowerCase().includes(q) || it.name.includes(q) || it.desc.includes(q) || it.dept.includes(q)) {
-                    results.push({ type: '标准', label: it.id + ' ' + it.name, module: 'standards', detail: it.dept + ' · ' + it.desc });
-                }
-            });
-        });
-    });
-
-    // 搜索任务
-    const tasks = loadData('tasks', []);
-    tasks.forEach(t => {
-        if (t.id.toLowerCase().includes(q) || t.name.includes(q) || t.owner.includes(q) || t.dept.includes(q)) {
-            results.push({ type: '任务', label: t.id + ' ' + t.name, module: 'tasks', detail: t.dept + ' · ' + t.owner + ' · ' + t.status });
-        }
-    });
-
-    // 搜索法规
-    const laws = {
-        '282': '海关总署令第282号 信用管理办法 注册登记 备案企业',
-        '34': '海关总署公告2026年第34号 高级认证企业标准',
-        '35': '海关总署公告2026年第35号 简易复核'
-    };
-    Object.keys(laws).forEach(k => {
-        if (laws[k].toLowerCase().includes(q) || k.includes(q)) {
-            results.push({ type: '法规', label: '公告/令第' + k + '号', module: 'laws', detail: laws[k] });
-        }
-    });
-
-    if (results.length === 0) { showToast('未找到匹配结果: ' + q, 'warning'); return; }
-
-    const msg = results.slice(0, 8).map(r => '[' + r.type + '] ' + r.label).join('\n');
-    if (results.length > 8) showToast(msg + '\n...及' + (results.length-8) + '项更多结果', 'info');
-    else showToast(msg, 'info');
-    addAuditLog('全局搜索: ' + q, 'general', results.length + ' 条结果');
-}
-
-// ------------------------------------------------------------------------
-// 15f. 加载状态 & 空状态辅助
-// ------------------------------------------------------------------------
-function showLoading(el, msg) {
-    if (typeof el === 'string') el = document.getElementById(el);
-    if (!el) return;
-    el.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fas fa-spinner fa-pulse text-3xl mb-3"></i><p class="text-sm">' + (msg||'加载中...') + '</p></div>';
-}
-function showEmpty(el, msg) {
-    if (typeof el === 'string') el = document.getElementById(el);
-    if (!el) return;
-    el.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fas fa-inbox text-4xl mb-3"></i><p class="text-sm">' + (msg||'暂无数据') + '</p></div>';
-}
-
-// ------------------------------------------------------------------------
-// 15g. 任务日历/Gantt 视图
-// ------------------------------------------------------------------------
-function toggleTaskCalendar() {
-    const tasks = loadData('tasks', []);
-    if (!tasks.length) { showToast('暂无任务可显示', 'info'); return; }
-    const sorted = tasks.slice().sort((a, b) => new Date(a.due) - new Date(b.due));
-    const now = new Date();
-    const lines = sorted.map(t => {
-        const due = new Date(t.due);
-        const daysLeft = Math.ceil((due - now) / (1000*60*60*24));
-        const status = t.status;
-        const barLen = Math.min(daysLeft < 0 ? 1 : daysLeft + 1, 30);
-        const bar = '█'.repeat(barLen) || '░';
-        const flag = daysLeft < 0 ? '⚠️ 已超期' + Math.abs(daysLeft) + '天' : '剩余' + daysLeft + '天';
-        return t.id + ' ' + t.name.substring(0, 15) + ' [' + t.dept + '] ' + flag + '\n   ' + t.due + ' ' + status;
-    }).join('\n\n');
-    alert('===== 任务时间线 =====\n（按截止日期排序）\n\n' + lines);
-    addAuditLog('查看任务时间线', 'task', '');
-}
-
-// ------------------------------------------------------------------------
-// 15h. 批量操作
-// ------------------------------------------------------------------------
-let selectedTasks = new Set();
-function toggleTaskSelection(id) {
-    if (selectedTasks.has(id)) selectedTasks.delete(id);
-    else selectedTasks.add(id);
-    document.getElementById('batchActions').classList.toggle('hidden', selectedTasks.size === 0);
-    document.getElementById('batchCount').textContent = selectedTasks.size;
-}
-function batchUpdateStatus(newStatus) {
-    if (!selectedTasks.size) { showToast('请先选择任务', 'warning'); return; }
-    if (!confirm('确定批量将 ' + selectedTasks.size + ' 个任务状态改为「' + newStatus + '」吗？')) return;
-    const tasks = loadData('tasks', []);
-    let count = 0;
-    tasks.forEach(t => { if (selectedTasks.has(t.id)) { t.status = newStatus; count++; } });
-    saveData('tasks', tasks);
-    addAuditLog('批量操作', 'task', count + ' 个任务 → ' + newStatus);
-    selectedTasks.clear();
-    document.getElementById('batchActions').classList.add('hidden');
-    showToast('成功更新 ' + count + ' 个任务状态', 'success');
-    renderTaskTable(); renderTaskKanban(); updateDashboard();
-}
-
-// ------------------------------------------------------------------------
-// 15i. 操作确认封装
-// ------------------------------------------------------------------------
-function confirmAndUpdateTask(id, newStatus, label) {
-    if (!confirm('确认将任务「' + (loadData('tasks',[]).find(t=>t.id===id)||{}).name + '」' + label + '吗？')) return;
-    updateTaskStatus(id, newStatus);
-}
-
-document.addEventListener('click', function(e) {
-    document.querySelectorAll('.modal-overlay.active').forEach(m => { if (e.target === m) m.classList.remove('active'); });
-});
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && document.getElementById('loginOverlay').style.display !== 'none') doLogin();
-    if (e.key === 'Escape' && document.body.classList.contains('demo-mode')) { toggleDemoMode(); showToast('已退出演示模式', 'info'); }
-    if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); document.getElementById('globalSearch').focus(); }
-});
-
-// ------------------------------------------------------------------------
-// 16. 初始化
-// ------------------------------------------------------------------------
-function initApp() {
-    checkOverdueTasks();
-    renderSidebar();
-    navigateTo('dashboard');
-    loadStandards();
-    loadAssessment();
-    renderTaskTable();
-    renderTaskKanban();
-    renderDocFiles();
-    renderTrainingFiles();
-
-    const filterDept = document.getElementById('taskFilterDept');
-    DEPARTMENTS.forEach(d => { filterDept.innerHTML += '<option value="' + d + '">' + d + '</option>'; });
-
-    let tasks = loadData('tasks', []);
-    if (tasks.length === 0) {
-        saveData('tasks', [
-            { id: 'TSK-2026-0001', name: '第一季度场所安全检查', standard: 'TS-01', dept: '行政部', owner: '赵工', due: '2026-07-05', req: '', attachReq: '', status: '执行中', evidence: [], createdAt: '2026-06-01T00:00:00.000Z' },
-            { id: 'TSK-2026-0002', name: '单证复核月度检查', standard: 'IC-03', dept: '关务部', owner: '钱芳', due: '2026-07-10', req: '', attachReq: '', status: '待下发', evidence: [], createdAt: '2026-06-01T00:00:00.000Z' },
-            { id: 'TSK-2026-0003', name: '进入安全检查（门禁/访客）', standard: 'TS-02', dept: '行政部', owner: '孙安', due: '2026-06-28', req: '', attachReq: '', status: '审核中', evidence: [], createdAt: '2026-05-28T00:00:00.000Z' },
-            { id: 'TSK-2026-0004', name: '商业伙伴安全年度评估', standard: 'TS-04', dept: '采购部', owner: '李采', due: '2026-08-15', req: '', attachReq: '', status: '待下发', evidence: [], createdAt: '2026-06-01T00:00:00.000Z' },
-            { id: 'TSK-2026-0005', name: '贸易安全培训', standard: 'TS-09', dept: 'HR', owner: '周信', due: '2026-07-20', req: '', attachReq: '', status: '待下发', evidence: [], createdAt: '2026-06-01T00:00:00.000Z' },
-            { id: 'TSK-2026-0006', name: '财务指标数据更新', standard: 'FI-01', dept: '财务部', owner: '吴财', due: '2026-06-15', req: '', attachReq: '', status: '执行中', evidence: [], createdAt: '2026-05-20T00:00:00.000Z' },
-            { id: 'TSK-2026-0007', name: '关键人员背调复核', standard: 'TS-03', dept: 'HR', owner: '郑人', due: '2026-06-30', req: '', attachReq: '', status: '已完成', evidence: [], createdAt: '2026-05-01T00:00:00.000Z' }
-        ]);
-    }
-
-    const savedUser = loadData('currentUser', null);
-    if (savedUser && savedUser.role) { document.getElementById('loginRole').value = savedUser.role; document.getElementById('loginName').value = savedUser.name; }
-
-    if (typeof Chart !== 'undefined') {
-        try {
-            new Chart(document.getElementById('tradeChart'), { type: 'line', data: { labels: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'], datasets: [{ label: '2025年进出口额(万元)', data: [1200,980,1450,1320,1580,1420,1650,1380,1520,1480,1620,1500], borderColor: '#1e3a5f', tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: true } });
-            new Chart(document.getElementById('countryChart'), { type: 'doughnut', data: { labels: ['美国','欧盟','东南亚','日韩','其他'], datasets: [{ data: [35,25,20,12,8], backgroundColor: ['#1e3a5f','#2c5282','#b45309','#059669','#7c3aed'] }] }, options: { responsive: true, maintainAspectRatio: true } });
-        } catch(e) { console.log('Chart init:', e.message); }
-    }
-    updateDashboard();
-    checkOverdueTasks();
-}
-
-(function() { const s = loadData('currentUser', null); if (s && s.role) doLogin(); })();
-</script>
 </body>
 </html>

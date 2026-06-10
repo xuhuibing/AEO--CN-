@@ -1,0 +1,41 @@
+[Unit]
+Description=AEO海关认证管理系统 v2.0
+Documentation=https://github.com/aeo-system/docs
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aeo
+Group=aeo
+WorkingDirectory=/opt/aeo-system
+
+# Environment file
+EnvironmentFile=/opt/aeo-system/.env
+
+# Node.js executable and app
+ExecStart=/usr/bin/node /opt/aeo-system/server.js
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Restart behavior
+Restart=always
+RestartSec=10
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/aeo-system/data /opt/aeo-system/uploads
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aeo-system
+
+[Install]
+WantedBy=multi-user.target
